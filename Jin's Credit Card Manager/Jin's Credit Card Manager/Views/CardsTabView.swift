@@ -1,6 +1,6 @@
 //
 //  CardsTabView.swift
-//  Jin's Credit Card Manager
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -10,6 +10,7 @@ import SwiftUI
 struct CardsTabView: View {
     @Bindable var viewModel: CardViewModel
     @State private var isAddingCard = false
+    @State private var editingCard: CreditCard?
     
     var body: some View {
         ScrollView {
@@ -66,6 +67,8 @@ struct CardsTabView: View {
                         ForEach(viewModel.cards, id: \.id) { card in
                             CardItemView(card: card, onDelete: {
                                 viewModel.deleteCard(card)
+                            }, onTap: {
+                                editingCard = card
                             })
                         }
                     }
@@ -78,14 +81,28 @@ struct CardsTabView: View {
         .sheet(isPresented: $isAddingCard) {
             AddCardView(viewModel: viewModel, isPresented: $isAddingCard)
         }
+        .sheet(item: $editingCard) { card in
+            EditCardView(viewModel: viewModel, card: card, isPresented: Binding(
+                get: { editingCard != nil },
+                set: { if !$0 { editingCard = nil } }
+            ))
+        }
     }
 }
 
 struct CardItemView: View {
     let card: CreditCard
     let onDelete: () -> Void
+    let onTap: () -> Void
     
     var body: some View {
+        Button(action: onTap) {
+            cardContent
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var cardContent: some View {
         HStack(spacing: 16) {
             // Card color indicator
             ZStack {
@@ -104,16 +121,18 @@ struct CardItemView: View {
                     .font(.system(size: 17, weight: .semibold))
                     .lineLimit(1)
                 
-                Text("•••• \(card.lastFourDigits)")
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                if !card.lastFourDigits.isEmpty {
+                    Text("•••• \(card.lastFourDigits)")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
                 
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                     
-                    Text("Due on the \(card.dueDate)\(getOrdinalSuffix(card.dueDate)) of each month")
+                    Text("Due on the \(card.dueDateDescription) of each month")
                         .font(.system(size: 14))
                         .foregroundColor(.gray)
                 }
@@ -133,6 +152,7 @@ struct CardItemView: View {
                         .foregroundColor(.red)
                 }
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding(16)
         .background(Color(.systemBackground))
@@ -156,8 +176,26 @@ struct AddCardView: View {
     
     @State private var cardName = ""
     @State private var lastFourDigits = ""
-    @State private var dueDate = "15"
+    @State private var selectedDate = Date()
+    @State private var isLastDayOfMonth = false
     @State private var selectedColor = CardColors.colors[0]
+    @State private var reminderDaysAhead = 5
+    
+    private var dueDateDay: Int {
+        if isLastDayOfMonth {
+            return 0
+        }
+        return Calendar.current.component(.day, from: selectedDate)
+    }
+    
+    private var dueDateDescription: String {
+        if isLastDayOfMonth {
+            return "last day"
+        } else {
+            let day = Calendar.current.component(.day, from: selectedDate)
+            return "\(day)\(getOrdinalSuffix(day))"
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -166,16 +204,26 @@ struct AddCardView: View {
                     TextField("Card Name", text: $cardName)
                         .autocapitalization(.words)
                     
-                    TextField("Last 4 Digits", text: $lastFourDigits)
+                    TextField("Last 4 Digits (Optional)", text: $lastFourDigits)
                         .keyboardType(.numberPad)
                         .onChange(of: lastFourDigits) { oldValue, newValue in
                             lastFourDigits = String(newValue.filter { $0.isNumber }.prefix(4))
                         }
                     
-                    Stepper("Due Date: \(dueDate)", value: Binding(
-                        get: { Int(dueDate) ?? 15 },
-                        set: { dueDate = String($0) }
-                    ), in: 1...31)
+                    Toggle("Last Day of Month", isOn: $isLastDayOfMonth)
+                    
+                    if !isLastDayOfMonth {
+                        DatePicker(
+                            "Due Date",
+                            selection: $selectedDate,
+                            displayedComponents: [.date]
+                        )
+                        .datePickerStyle(.compact)
+                    }
+                    
+                    Text("Payment due on the \(dueDateDescription) of each month")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
                 
                 Section(header: Text("Card Color")) {
@@ -200,6 +248,36 @@ struct AddCardView: View {
                     }
                     .padding(.vertical, 8)
                 }
+                
+                Section(header: Text("Reminder Settings")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Remind me \(reminderDaysAhead) day\(reminderDaysAhead == 1 ? "" : "s") before due date")
+                            .font(.system(size: 14, weight: .medium))
+                        
+                        Slider(
+                            value: Binding(
+                                get: { Double(reminderDaysAhead) },
+                                set: { reminderDaysAhead = Int($0) }
+                            ),
+                            in: 1...30,
+                            step: 1
+                        )
+                        .accentColor(.blue)
+                        
+                        HStack {
+                            Text("1 day")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                            
+                            Spacer()
+                            
+                            Text("30 days")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
             }
             .navigationTitle("Add New Card")
             .navigationBarTitleDisplayMode(.inline)
@@ -212,19 +290,198 @@ struct AddCardView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        if !cardName.isEmpty && lastFourDigits.count == 4 {
+                        if !cardName.isEmpty {
                             viewModel.addCard(
                                 name: cardName,
                                 lastFourDigits: lastFourDigits,
-                                dueDate: Int(dueDate) ?? 15,
-                                colorHex: selectedColor
+                                dueDate: dueDateDay,
+                                colorHex: selectedColor,
+                                reminderDaysAhead: reminderDaysAhead
                             )
                             isPresented = false
                         }
                     }
-                    .disabled(cardName.isEmpty || lastFourDigits.count != 4)
+                    .disabled(cardName.isEmpty)
                 }
             }
+        }
+    }
+    
+    private func getOrdinalSuffix(_ day: Int) -> String {
+        switch day {
+        case 1, 21, 31: return "st"
+        case 2, 22: return "nd"
+        case 3, 23: return "rd"
+        default: return "th"
+        }
+    }
+}
+
+struct EditCardView: View {
+    @Bindable var viewModel: CardViewModel
+    let card: CreditCard
+    @Binding var isPresented: Bool
+    
+    @State private var cardName = ""
+    @State private var lastFourDigits = ""
+    @State private var selectedDate = Date()
+    @State private var isLastDayOfMonth = false
+    @State private var selectedColor = ""
+    @State private var reminderDaysAhead = 5
+    
+    init(viewModel: CardViewModel, card: CreditCard, isPresented: Binding<Bool>) {
+        self.viewModel = viewModel
+        self.card = card
+        self._isPresented = isPresented
+        
+        // Initialize state with card values
+        self._cardName = State(initialValue: card.name)
+        self._lastFourDigits = State(initialValue: card.lastFourDigits)
+        self._isLastDayOfMonth = State(initialValue: card.isLastDayOfMonth)
+        self._selectedColor = State(initialValue: card.colorHex)
+        self._reminderDaysAhead = State(initialValue: card.reminderDaysAhead)
+        
+        // Set initial date
+        if !card.isLastDayOfMonth {
+            let calendar = Calendar.current
+            let components = DateComponents(year: 2024, month: 1, day: card.dueDate)
+            self._selectedDate = State(initialValue: calendar.date(from: components) ?? Date())
+        }
+    }
+    
+    private var dueDateDay: Int {
+        if isLastDayOfMonth {
+            return 0
+        }
+        return Calendar.current.component(.day, from: selectedDate)
+    }
+    
+    private var dueDateDescription: String {
+        if isLastDayOfMonth {
+            return "last day"
+        } else {
+            let day = Calendar.current.component(.day, from: selectedDate)
+            return "\(day)\(getOrdinalSuffix(day))"
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Card Information")) {
+                    TextField("Card Name", text: $cardName)
+                        .autocapitalization(.words)
+                    
+                    TextField("Last 4 Digits (Optional)", text: $lastFourDigits)
+                        .keyboardType(.numberPad)
+                        .onChange(of: lastFourDigits) { oldValue, newValue in
+                            lastFourDigits = String(newValue.filter { $0.isNumber }.prefix(4))
+                        }
+                    
+                    Toggle("Last Day of Month", isOn: $isLastDayOfMonth)
+                    
+                    if !isLastDayOfMonth {
+                        DatePicker(
+                            "Due Date",
+                            selection: $selectedDate,
+                            displayedComponents: [.date]
+                        )
+                        .datePickerStyle(.compact)
+                    }
+                    
+                    Text("Payment due on the \(dueDateDescription) of each month")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                
+                Section(header: Text("Card Color")) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                        ForEach(CardColors.colors, id: \.self) { color in
+                            Button(action: {
+                                selectedColor = color
+                            }) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(hex: color))
+                                        .frame(height: 48)
+                                    
+                                    if selectedColor == color {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.blue, lineWidth: 4)
+                                            .frame(height: 48)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+                
+                Section(header: Text("Reminder Settings")) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Remind me \(reminderDaysAhead) day\(reminderDaysAhead == 1 ? "" : "s") before due date")
+                            .font(.system(size: 14, weight: .medium))
+                        
+                        Slider(
+                            value: Binding(
+                                get: { Double(reminderDaysAhead) },
+                                set: { reminderDaysAhead = Int($0) }
+                            ),
+                            in: 1...30,
+                            step: 1
+                        )
+                        .accentColor(.blue)
+                        
+                        HStack {
+                            Text("1 day")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                            
+                            Spacer()
+                            
+                            Text("30 days")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .navigationTitle("Edit Card")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        if !cardName.isEmpty {
+                            viewModel.updateCard(
+                                card,
+                                name: cardName,
+                                lastFourDigits: lastFourDigits,
+                                dueDate: dueDateDay,
+                                colorHex: selectedColor,
+                                reminderDaysAhead: reminderDaysAhead
+                            )
+                            isPresented = false
+                        }
+                    }
+                    .disabled(cardName.isEmpty)
+                }
+            }
+        }
+    }
+    
+    private func getOrdinalSuffix(_ day: Int) -> String {
+        switch day {
+        case 1, 21, 31: return "st"
+        case 2, 22: return "nd"
+        case 3, 23: return "rd"
+        default: return "th"
         }
     }
 }

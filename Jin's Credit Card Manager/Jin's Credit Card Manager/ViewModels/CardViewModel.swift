@@ -1,6 +1,6 @@
 //
 //  CardViewModel.swift
-//  Jin's Credit Card Manager
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -12,7 +12,6 @@ import SwiftData
 @Observable
 class CardViewModel {
     var cards: [CreditCard] = []
-    var settings: AppSettings?
     
     private var modelContext: ModelContext?
     
@@ -27,54 +26,61 @@ class CardViewModel {
         // Load cards
         let cardDescriptor = FetchDescriptor<CreditCard>()
         cards = (try? context.fetch(cardDescriptor)) ?? []
-        
-        // Load or create settings
-        let settingsDescriptor = FetchDescriptor<AppSettings>()
-        let existingSettings = try? context.fetch(settingsDescriptor)
-        
-        if let first = existingSettings?.first {
-            settings = first
-        } else {
-            let newSettings = AppSettings()
-            context.insert(newSettings)
-            settings = newSettings
-            try? context.save()
-        }
     }
     
-    func addCard(name: String, lastFourDigits: String, dueDate: Int, colorHex: String) {
+    func addCard(name: String, lastFourDigits: String, dueDate: Int, colorHex: String, reminderDaysAhead: Int = 5) {
         guard let context = modelContext else { return }
         
         let newCard = CreditCard(
             name: name,
             lastFourDigits: lastFourDigits,
             dueDate: dueDate,
-            colorHex: colorHex
+            colorHex: colorHex,
+            reminderDaysAhead: reminderDaysAhead
         )
         
         context.insert(newCard)
         try? context.save()
         loadData()
+        
+        // Schedule notifications for the new card
+        Task {
+            await NotificationManager.shared.scheduleNotifications(for: newCard)
+        }
+    }
+    
+    func updateCard(_ card: CreditCard, name: String, lastFourDigits: String, dueDate: Int, colorHex: String, reminderDaysAhead: Int) {
+        guard let context = modelContext else { return }
+        
+        card.name = name
+        card.lastFourDigits = lastFourDigits
+        card.dueDate = dueDate
+        card.colorHex = colorHex
+        card.reminderDaysAhead = reminderDaysAhead
+        
+        try? context.save()
+        loadData()
+        
+        // Reschedule notifications for the updated card
+        Task {
+            await NotificationManager.shared.scheduleNotifications(for: card)
+        }
     }
     
     func deleteCard(_ card: CreditCard) {
         guard let context = modelContext else { return }
+        
+        // Cancel notifications for the card before deleting
+        Task {
+            await NotificationManager.shared.cancelNotifications(for: card)
+        }
         
         context.delete(card)
         try? context.save()
         loadData()
     }
     
-    func updateReminderDaysAhead(_ days: Int) {
-        guard let context = modelContext, let settings = settings else { return }
-        
-        settings.reminderDaysAhead = days
-        try? context.save()
-    }
-    
     func getUpcomingReminders() -> [(card: CreditCard, dueDate: Date, daysUntilDue: Int)] {
-        guard let settings = settings else { return [] }
-        
         let today = Date()
         let calendar = Calendar.current
         var reminders: [(card: CreditCard, dueDate: Date, daysUntilDue: Int)] = []
@@ -84,17 +90,31 @@ class CardViewModel {
             let currentYear = calendar.component(.year, from: today)
             
             // Check current month's due date
-            var dueDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate))!
+            var dueDate: Date
+            if card.isLastDayOfMonth {
+                // Get the last day of the current month
+                let nextMonth = calendar.date(byAdding: .month, value: 1, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
+                dueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
+            } else {
+                dueDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate))!
+            }
+            
             var daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
             
             // If due date has passed, check next month
             if daysUntilDue < 0 {
-                dueDate = calendar.date(byAdding: .month, value: 1, to: dueDate)!
+                if card.isLastDayOfMonth {
+                    // Get the last day of next month
+                    let monthAfterNext = calendar.date(byAdding: .month, value: 2, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
+                    dueDate = calendar.date(byAdding: .day, value: -1, to: monthAfterNext)!
+                } else {
+                    dueDate = calendar.date(byAdding: .month, value: 1, to: dueDate)!
+                }
                 daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
             }
             
-            // Only show if within reminder window
-            if daysUntilDue >= 0 && daysUntilDue <= settings.reminderDaysAhead {
+            // Only show if within reminder window (using per-card reminder setting)
+            if daysUntilDue >= 0 && daysUntilDue <= card.reminderDaysAhead {
                 reminders.append((card: card, dueDate: dueDate, daysUntilDue: daysUntilDue))
             }
         }

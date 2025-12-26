@@ -1,6 +1,6 @@
 //
 //  ReminderTabView.swift
-//  Jin's Credit Card Manager
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ReminderTabView: View {
     @Bindable var viewModel: CardViewModel
+    @State private var showTestAlert = false
     
     var body: some View {
         ScrollView {
@@ -21,6 +22,20 @@ struct ReminderTabView: View {
                     
                     Text("Payment Reminders")
                         .font(.system(size: 34, weight: .bold))
+                    
+                    Spacer()
+                    
+                    // Test Notification Button (for development)
+                    Button(action: {
+                        showTestAlert = true
+                    }) {
+                        Image(systemName: "bell.badge.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.orange)
+                            .padding(8)
+                            .background(Color.orange.opacity(0.1))
+                            .cornerRadius(8)
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -60,6 +75,22 @@ struct ReminderTabView: View {
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
+        .alert("Test Notification", isPresented: $showTestAlert) {
+            Button("Cancel", role: .cancel) { }
+            if let firstCard = viewModel.cards.first {
+                Button("Send Test (10 sec)") {
+                    Task {
+                        await NotificationManager.shared.scheduleTestNotification(for: firstCard)
+                    }
+                }
+            }
+        } message: {
+            if viewModel.cards.isEmpty {
+                Text("Please add a card first to test notifications.")
+            } else {
+                Text("A test notification will appear in 10 seconds for your first card. Make sure notifications are enabled!")
+            }
+        }
     }
 }
 

@@ -6,5 +6,7 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>We need permission to send you reminders about your credit card payment due dates.</string>
 </dict>
 </plist>

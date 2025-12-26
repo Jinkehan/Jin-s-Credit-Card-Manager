@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Jin's Credit Card Manager
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -18,5 +18,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [CreditCard.self, AppSettings.self], inMemory: true)
+        .modelContainer(for: [CreditCard.self], inMemory: true)
 }

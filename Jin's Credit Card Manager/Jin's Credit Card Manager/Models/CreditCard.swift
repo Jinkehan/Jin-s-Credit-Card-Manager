@@ -1,6 +1,6 @@
 //
 //  CreditCard.swift
-//  Jin's Credit Card Manager
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -14,19 +14,44 @@ final class CreditCard {
     var id: String
     var name: String
     var lastFourDigits: String
-    var dueDate: Int // Day of the month (1-31)
+    var dueDate: Int // Day of the month (1-31, or 0 for last day of month)
     var colorHex: String
+    var cardType: String? // Optional: Specific card type (e.g., "Amex Gold", "Chase Sapphire Reserve") for benefits tracking
+    var reminderDaysAhead: Int // Days before due date to show reminder
     
-    init(id: String = UUID().uuidString, name: String, lastFourDigits: String, dueDate: Int, colorHex: String) {
+    init(id: String = UUID().uuidString, name: String, lastFourDigits: String, dueDate: Int, colorHex: String, cardType: String? = nil, reminderDaysAhead: Int = 5) {
         self.id = id
         self.name = name
         self.lastFourDigits = lastFourDigits
         self.dueDate = dueDate
         self.colorHex = colorHex
+        self.cardType = cardType
+        self.reminderDaysAhead = reminderDaysAhead
     }
     
     var color: Color {
         Color(hex: colorHex)
+    }
+    
+    var isLastDayOfMonth: Bool {
+        dueDate == 0
+    }
+    
+    var dueDateDescription: String {
+        if isLastDayOfMonth {
+            return "last day"
+        } else {
+            return "\(dueDate)\(getOrdinalSuffix(dueDate))"
+        }
+    }
+    
+    private func getOrdinalSuffix(_ day: Int) -> String {
+        switch day {
+        case 1, 21, 31: return "st"
+        case 2, 22: return "nd"
+        case 3, 23: return "rd"
+        default: return "th"
+        }
     }
 }
 

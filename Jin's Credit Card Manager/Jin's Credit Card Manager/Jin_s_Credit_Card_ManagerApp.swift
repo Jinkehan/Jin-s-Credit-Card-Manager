@@ -1,6 +1,6 @@
 //
-//  Jin_s_Credit_Card_ManagerApp.swift
-//  Jin's Credit Card Manager
+//  JDueApp.swift
+//  J Due
 //
 //  Created by Kehan Jin on 12/25/25.
 //
@@ -9,11 +9,10 @@ import SwiftUI
 import SwiftData
 
 @main
-struct Jin_s_Credit_Card_ManagerApp: App {
+struct JDueApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             CreditCard.self,
-            AppSettings.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -27,6 +26,10 @@ struct Jin_s_Credit_Card_ManagerApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .task {
+                    // Request notification permissions when app launches
+                    _ = await NotificationManager.shared.requestAuthorization()
+                }
         }
         .modelContainer(sharedModelContainer)
     }

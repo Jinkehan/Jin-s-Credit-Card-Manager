@@ -1,14 +1,16 @@
-# Jin's Credit Card Manager
+# J Due
 
 A native iOS app built with SwiftUI to help manage credit card payment reminders.
 
 ## Features
 
-- 💳 **Card Management**: Add and manage multiple credit cards
+- 💳 **Card Management**: Add, edit, and manage multiple credit cards
 - 🔔 **Payment Reminders**: Get notified about upcoming payment due dates
-- ⚙️ **Customizable Settings**: Configure reminder window (1-30 days ahead)
+- ⏰ **Smart Notifications**: Receive push notifications at 8 AM on reminder days
+- ⚙️ **Per-Card Reminders**: Configure reminder window for each card individually (1-30 days ahead, default 5 days)
 - 🎨 **Color Coding**: Assign colors to cards for easy identification
 - 💾 **Local Storage**: All data stored securely on device using SwiftData
+- 🔄 **Auto-Scheduling**: Notifications automatically scheduled for the next 12 months
 
 ## Requirements
 
@@ -27,17 +29,17 @@ A native iOS app built with SwiftUI to help manage credit card payment reminders
 This app follows the **MVVM (Model-View-ViewModel)** architecture:
 
 ```
-Jin's Credit Card Manager/
+J Due/
 ├── Models/              # Data models (SwiftData)
-│   ├── CreditCard.swift
-│   └── AppSettings.swift
+│   └── CreditCard.swift
 ├── ViewModels/          # Business logic
 │   └── CardViewModel.swift
-└── Views/               # UI components
-    ├── MainTabView.swift
-    ├── ReminderTabView.swift
-    ├── CardsTabView.swift
-    └── SettingsTabView.swift
+├── Views/               # UI components
+│   ├── MainTabView.swift
+│   ├── ReminderTabView.swift
+│   └── CardsTabView.swift
+└── Services/            # System services
+    └── NotificationManager.swift
 ```
 
 ## Architecture: MVVM
@@ -58,6 +60,7 @@ User Action → View → ViewModel → Model → SwiftData
 
 - **SwiftUI**: Modern declarative UI framework
 - **SwiftData**: Apple's persistence framework
+- **UserNotifications**: Local push notifications
 - **@Observable**: Swift's observation system
 - **MVVM**: Clean architecture pattern
 
@@ -73,23 +76,30 @@ User Action → View → ViewModel → Model → SwiftData
 
 ### 2. Cards Tab
 - View all credit cards
+- Tap any card to edit its details
 - Add new cards with:
   - Card name
   - Last 4 digits
-  - Due date (1-31)
+  - Due date (1-31 or last day of month)
   - Color selection
-- Delete cards
+  - Reminder days ahead (1-30 days, default 5)
+- Edit existing cards to update any field
+- Delete cards (automatically cancels associated notifications)
 
-### 3. Settings Tab
-- Configure reminder window (1-30 days)
-- Adjust with slider control
-- Changes save automatically
+### 3. Notification System
+- **Automatic Scheduling**: Notifications are automatically scheduled when you add or edit a card
+- **8 AM Delivery**: All notifications are delivered at 8:00 AM on the reminder day
+- **12-Month Horizon**: Notifications scheduled for the next 12 months
+- **Smart Updates**: Editing a card reschedules its notifications
+- **Clean Deletion**: Deleting a card cancels all its pending notifications
+- **Permission Request**: App requests notification permission on first launch
+- **Foreground Alerts**: Notifications appear even when app is open
 
 ## Data Persistence
 
 All data is stored locally using **SwiftData**:
-- Cards persist across app launches
-- Settings saved automatically
+- Cards and their individual reminder settings persist across app launches
+- Changes saved automatically
 - No cloud sync (privacy-focused)
 - No internet connection required
 
@@ -111,10 +121,13 @@ All data is stored locally using **SwiftData**:
 ### Testing
 
 Run the app in simulator and test:
-- Adding/deleting cards
+- Adding/editing/deleting cards
+- Setting different reminder days for each card
 - Viewing reminders with different due dates
-- Adjusting settings
+- Tapping cards to edit their details
 - App restart (data persistence)
+- Notification permissions
+- Scheduled notifications (check Settings > Notifications on device/simulator)
 
 ## License
 
