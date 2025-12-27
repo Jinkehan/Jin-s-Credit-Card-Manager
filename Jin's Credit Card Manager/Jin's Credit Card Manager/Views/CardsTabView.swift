@@ -11,6 +11,8 @@ struct CardsTabView: View {
     @Bindable var viewModel: CardViewModel
     @State private var isAddingCard = false
     @State private var editingCard: CreditCard?
+    @State private var cardToDelete: CreditCard?
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         ScrollView {
@@ -66,7 +68,8 @@ struct CardsTabView: View {
                     VStack(spacing: 12) {
                         ForEach(viewModel.cards, id: \.id) { card in
                             CardItemView(card: card, onDelete: {
-                                viewModel.deleteCard(card)
+                                cardToDelete = card
+                                showDeleteConfirmation = true
                             }, onTap: {
                                 editingCard = card
                             })
@@ -78,6 +81,19 @@ struct CardsTabView: View {
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
+        .alert("Delete Card", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                if let card = cardToDelete {
+                    viewModel.deleteCard(card)
+                    cardToDelete = nil
+                }
+            }
+        } message: {
+            if let card = cardToDelete {
+                Text("Are you sure you want to delete \"\(card.name)\"? This action cannot be undone.")
+            }
+        }
         .sheet(isPresented: $isAddingCard) {
             AddCardView(viewModel: viewModel, isPresented: $isAddingCard)
         }
@@ -244,6 +260,7 @@ struct AddCardView: View {
                                     }
                                 }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.vertical, 8)
@@ -412,6 +429,7 @@ struct EditCardView: View {
                                     }
                                 }
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.vertical, 8)
