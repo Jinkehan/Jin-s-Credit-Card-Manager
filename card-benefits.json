@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-12-25T10:00:00Z",
+  "predefinedCards": [
+    {
+      "id": "chase_sapphire_reserve",
+      "name": "Chase Sapphire Reserve",
+      "issuer": "Chase",
+      "cardNetwork": "Visa",
+      "category": "premium_travel",
+      "defaultBenefits": [
+        {
+          "id": "travel_credit_annual",
+          "name": "$300 Annual Travel Credit",
+          "description": "Automatically applied to travel purchases. Resets annually on card anniversary.",
+          "category": "Travel",
+          "value": {
+            "amount": 300,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $300 travel credit before it resets!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "priority_pass",
+          "name": "Priority Pass Select Membership",
+          "description": "Complimentary access to 1,300+ airport lounges worldwide",
+          "category": "Travel",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "membership"
+          },
+          "reminder": {
+            "type": "one_time",
+            "date": "2025-01-15",
+            "message": "Activate your Priority Pass membership to access airport lounges"
+          }
+        },
+        {
+          "id": "global_entry_tsa",
+          "name": "Global Entry / TSA PreCheck Credit",
+          "description": "$100 credit every 4 years for Global Entry or TSA PreCheck application fee",
+          "category": "Travel",
+          "value": {
+            "amount": 100,
+            "currency": "USD",
+            "type": "credit",
+            "validityPeriod": "4_years"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 60,
+            "message": "You may be eligible for a Global Entry/TSA PreCheck credit renewal"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "dining_credit",
+          "name": "DoorDash Credit",
+          "description": "$5 monthly DoorDash credit (DashPass membership required)",
+          "category": "Dining",
+          "value": {
+            "amount": 5,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $5 DoorDash credit this month!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        }
+      ]
+    },
+    {
+      "id": "amex_platinum",
+      "name": "American Express Platinum",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "premium_travel",
+      "defaultBenefits": [
+        {
+          "id": "uber_credit",
+          "name": "Uber Cash Credit",
+          "description": "$15 monthly Uber credit ($35 in December)",
+          "category": "Transportation",
+          "value": {
+            "amount": 15,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly",
+            "specialMonths": {
+              "12": 35
+            }
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $15 Uber credit this month! ($35 in December)"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "airline_fee_credit",
+          "name": "Airline Fee Credit",
+          "description": "$200 annual credit for airline incidental fees with selected airline",
+          "category": "Travel",
+          "value": {
+            "amount": 200,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 60,
+            "message": "Don't forget to use your $200 airline fee credit!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "saks_credit",
+          "name": "Saks Fifth Avenue Credit",
+          "description": "$50 credit every 6 months (January-June and July-December)",
+          "category": "Shopping",
+          "value": {
+            "amount": 50,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "semi_annual"
+          },
+          "reminder": {
+            "type": "semi_annual",
+            "periods": [
+              {
+                "startMonth": 1,
+                "endMonth": 6
+              },
+              {
+                "startMonth": 7,
+                "endMonth": 12
+              }
+            ],
+            "dayOfMonth": 1,
+            "message": "Use your $50 Saks credit for this half of the year!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "semi_annual"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chase_freedom_flex",
+      "name": "Chase Freedom Flex",
+      "issuer": "Chase",
+      "cardNetwork": "Mastercard",
+      "category": "cashback",
+      "defaultBenefits": [
+        {
+          "id": "quarterly_bonus",
+          "name": "5% Quarterly Bonus Categories",
+          "description": "Earn 5% cash back on rotating categories (up to $1,500 per quarter)",
+          "category": "Cashback",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "bonus",
+            "maxSpend": 1500,
+            "maxReward": 75
+          },
+          "reminder": {
+            "type": "quarterly",
+            "startMonth": 1,
+            "dayOfMonth": 1,
+            "message": "Check this quarter's 5% bonus categories and activate them!"
+          }
+        }
+      ]
+    }
+  ]
+}
+

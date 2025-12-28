@@ -18,8 +18,23 @@ final class CreditCard {
     var colorHex: String
     var cardType: String? // Optional: Specific card type (e.g., "Amex Gold", "Chase Sapphire Reserve") for benefits tracking
     var reminderDaysAhead: Int // Days before due date to show reminder
+    var predefinedCardId: String? // If user selected a predefined card from JSON
+    var cardAnniversaryDate: Date? // For annual benefit calculations
     
-    init(id: String = UUID().uuidString, name: String, lastFourDigits: String, dueDate: Int, colorHex: String, cardType: String? = nil, reminderDaysAhead: Int = 5) {
+    // Relationship to benefits
+    @Relationship(deleteRule: .cascade) var benefits: [CardBenefit]?
+    
+    init(
+        id: String = UUID().uuidString,
+        name: String,
+        lastFourDigits: String,
+        dueDate: Int,
+        colorHex: String,
+        cardType: String? = nil,
+        reminderDaysAhead: Int = 5,
+        predefinedCardId: String? = nil,
+        cardAnniversaryDate: Date? = nil
+    ) {
         self.id = id
         self.name = name
         self.lastFourDigits = lastFourDigits
@@ -27,6 +42,8 @@ final class CreditCard {
         self.colorHex = colorHex
         self.cardType = cardType
         self.reminderDaysAhead = reminderDaysAhead
+        self.predefinedCardId = predefinedCardId
+        self.cardAnniversaryDate = cardAnniversaryDate
     }
     
     var color: Color {
@@ -52,6 +69,18 @@ final class CreditCard {
         case 3, 23: return "rd"
         default: return "th"
         }
+    }
+    
+    var isPredefinedCard: Bool {
+        predefinedCardId != nil
+    }
+    
+    var hasCustomBenefits: Bool {
+        benefits?.contains { $0.isCustom } ?? false
+    }
+    
+    var activeBenefits: [CardBenefit] {
+        benefits?.filter { $0.isActive } ?? []
     }
 }
 

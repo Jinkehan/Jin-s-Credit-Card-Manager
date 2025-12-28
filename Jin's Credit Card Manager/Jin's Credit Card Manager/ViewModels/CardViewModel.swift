@@ -28,7 +28,15 @@ class CardViewModel {
         cards = (try? context.fetch(cardDescriptor)) ?? []
     }
     
-    func addCard(name: String, lastFourDigits: String, dueDate: Int, colorHex: String, reminderDaysAhead: Int = 5) {
+    func addCard(
+        name: String,
+        lastFourDigits: String,
+        dueDate: Int,
+        colorHex: String,
+        reminderDaysAhead: Int = 5,
+        predefinedCardId: String? = nil,
+        cardAnniversaryDate: Date? = nil
+    ) {
         guard let context = modelContext else { return }
         
         let newCard = CreditCard(
@@ -36,16 +44,35 @@ class CardViewModel {
             lastFourDigits: lastFourDigits,
             dueDate: dueDate,
             colorHex: colorHex,
-            reminderDaysAhead: reminderDaysAhead
+            reminderDaysAhead: reminderDaysAhead,
+            predefinedCardId: predefinedCardId,
+            cardAnniversaryDate: cardAnniversaryDate ?? Date()
         )
         
         context.insert(newCard)
         try? context.save()
         loadData()
         
+        // If predefined card, create benefits
+        if let predefinedCardId = predefinedCardId,
+           let predefinedCard = CardBenefitsService.shared.getPredefinedCard(byId: predefinedCardId) {
+            LocalBenefitsStore.shared.createBenefitsFromPredefined(
+                predefinedCard: predefinedCard,
+                for: newCard,
+                context: context
+            )
+        }
+        
         // Schedule notifications for the new card
         Task {
             await NotificationManager.shared.scheduleNotifications(for: newCard)
+            
+            // Schedule benefit reminders
+            if let benefits = newCard.benefits {
+                for benefit in benefits where benefit.isActive {
+                    await NotificationManager.shared.scheduleBenefitReminders(for: benefit)
+                }
+            }
         }
     }
     
@@ -113,13 +140,12 @@ class CardViewModel {
                 daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
             }
             
-            // Only show if within reminder window (using per-card reminder setting)
-            if daysUntilDue >= 0 && daysUntilDue <= card.reminderDaysAhead {
-                reminders.append((card: card, dueDate: dueDate, daysUntilDue: daysUntilDue))
-            }
+            // Always show the next due date for all cards in the Reminders tab
+            // The reminderDaysAhead setting is only used for notification scheduling
+            reminders.append((card: card, dueDate: dueDate, daysUntilDue: daysUntilDue))
         }
         
-        // Sort by days until due
+        // Sort by days until due (earliest to latest)
         return reminders.sorted { $0.daysUntilDue < $1.daysUntilDue }
     }
 }

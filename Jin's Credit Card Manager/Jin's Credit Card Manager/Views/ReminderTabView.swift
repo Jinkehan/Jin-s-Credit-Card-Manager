@@ -105,10 +105,10 @@ struct ReminderCardView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(card.color)
-                    .frame(width: 48, height: 48)
+                    .frame(width: 64, height: 64)
                 
-                Text("••••")
-                    .font(.system(size: 18))
+                Image(systemName: "creditcard.fill")
+                    .font(.system(size: 32))
                     .foregroundColor(.white)
             }
             

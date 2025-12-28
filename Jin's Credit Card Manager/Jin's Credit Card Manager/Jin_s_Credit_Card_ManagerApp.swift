@@ -13,6 +13,7 @@ struct JDueApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             CreditCard.self,
+            CardBenefit.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

@@ -1,0 +1,168 @@
+//
+//  BenefitsViewModel.swift
+//  J Due
+//
+//  Created by Kehan Jin on 12/25/25.
+//
+
+import Foundation
+import SwiftData
+import SwiftUI
+
+@Observable
+class BenefitsViewModel {
+    var benefits: [CardBenefit] = []
+    var card: CreditCard?
+    
+    private var modelContext: ModelContext?
+    
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
+    
+    func loadBenefits(for card: CreditCard) {
+        self.card = card
+        guard let context = modelContext else { return }
+        
+        let descriptor = FetchDescriptor<CardBenefit>(
+            predicate: #Predicate<CardBenefit> { $0.cardId == card.id }
+        )
+        benefits = (try? context.fetch(descriptor)) ?? []
+    }
+    
+    func addCustomBenefit(
+        name: String,
+        description: String,
+        category: String,
+        amount: Double?,
+        currency: String,
+        benefitType: String,
+        reminderType: String,
+        reminderDay: Int?,
+        reminderDate: Date?,
+        reminderMessage: String,
+        resetPeriod: String?
+    ) {
+        guard let context = modelContext, let card = card else { return }
+        
+        let benefit = CardBenefit(
+            cardId: card.id,
+            name: name,
+            description: description,
+            category: category,
+            amount: amount,
+            currency: currency,
+            benefitType: benefitType,
+            reminderType: reminderType,
+            reminderDay: reminderDay,
+            reminderDate: reminderDate,
+            reminderMessage: reminderMessage,
+            isFromPredefined: false,
+            isCustom: true,
+            resetPeriod: resetPeriod,
+            cardAnniversaryDate: card.cardAnniversaryDate
+        )
+        
+        benefit.card = card
+        context.insert(benefit)
+        try? context.save()
+        loadBenefits(for: card)
+        
+        // Schedule notifications for the new benefit
+        Task {
+            await NotificationManager.shared.scheduleBenefitReminders(for: benefit)
+        }
+    }
+    
+    func updateBenefit(
+        _ benefit: CardBenefit,
+        name: String,
+        description: String,
+        category: String,
+        amount: Double?,
+        currency: String,
+        benefitType: String,
+        reminderType: String,
+        reminderDay: Int?,
+        reminderDate: Date?,
+        reminderMessage: String,
+        isActive: Bool,
+        resetPeriod: String?
+    ) {
+        guard let context = modelContext else { return }
+        
+        benefit.name = name
+        benefit.description = description
+        benefit.category = category
+        benefit.amount = amount
+        benefit.currency = currency
+        benefit.benefitType = benefitType
+        benefit.reminderType = reminderType
+        benefit.reminderDay = reminderDay
+        benefit.reminderDate = reminderDate
+        benefit.reminderMessage = reminderMessage
+        benefit.isActive = isActive
+        benefit.resetPeriod = resetPeriod
+        
+        try? context.save()
+        if let card = card {
+            loadBenefits(for: card)
+        }
+        
+        // Reschedule notifications
+        Task {
+            await NotificationManager.shared.cancelBenefitReminders(for: benefit)
+            if benefit.isActive {
+                await NotificationManager.shared.scheduleBenefitReminders(for: benefit)
+            }
+        }
+    }
+    
+    func deleteBenefit(_ benefit: CardBenefit) {
+        guard let context = modelContext else { return }
+        
+        // Cancel notifications
+        Task {
+            await NotificationManager.shared.cancelBenefitReminders(for: benefit)
+        }
+        
+        context.delete(benefit)
+        try? context.save()
+        
+        if let card = card {
+            loadBenefits(for: card)
+        }
+    }
+    
+    func toggleBenefitActive(_ benefit: CardBenefit) {
+        guard let context = modelContext else { return }
+        
+        benefit.isActive.toggle()
+        try? context.save()
+        
+        if let card = card {
+            loadBenefits(for: card)
+        }
+        
+        // Update notifications
+        Task {
+            if benefit.isActive {
+                await NotificationManager.shared.scheduleBenefitReminders(for: benefit)
+            } else {
+                await NotificationManager.shared.cancelBenefitReminders(for: benefit)
+            }
+        }
+    }
+    
+    func markBenefitAsUsed(_ benefit: CardBenefit) {
+        guard let context = modelContext else { return }
+        
+        benefit.lastUsedDate = Date()
+        try? context.save()
+        
+        if let card = card {
+            loadBenefits(for: card)
+        }
+    }
+}
+

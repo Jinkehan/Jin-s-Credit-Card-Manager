@@ -190,12 +190,16 @@ struct AddCardView: View {
     @Bindable var viewModel: CardViewModel
     @Binding var isPresented: Bool
     
+    @ObservedObject private var benefitsService = CardBenefitsService.shared
     @State private var cardName = ""
     @State private var lastFourDigits = ""
     @State private var selectedDate = Date()
     @State private var isLastDayOfMonth = false
     @State private var selectedColor = CardColors.colors[0]
     @State private var reminderDaysAhead = 5
+    @State private var selectedPredefinedCard: PredefinedCard?
+    @State private var showPredefinedCardPicker = false
+    @State private var searchText = ""
     
     private var dueDateDay: Int {
         if isLastDayOfMonth {
@@ -216,9 +220,37 @@ struct AddCardView: View {
     var body: some View {
         NavigationView {
             Form {
+                Section(header: Text("Card Type")) {
+                    Picker("Card Type", selection: $selectedPredefinedCard) {
+                        Text("Custom Card").tag(PredefinedCard?.none)
+                        ForEach(benefitsService.predefinedCards) { predefinedCard in
+                            Text("\(predefinedCard.name) - \(predefinedCard.issuer)")
+                                .tag(PredefinedCard?.some(predefinedCard))
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    
+                    if let predefinedCard = selectedPredefinedCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Selected: \(predefinedCard.name)")
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                            Text("\(predefinedCard.defaultBenefits.count) benefits will be added")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                
                 Section(header: Text("Card Information")) {
                     TextField("Card Name", text: $cardName)
                         .autocapitalization(.words)
+                        .onChange(of: selectedPredefinedCard) { oldValue, newValue in
+                            if let predefined = newValue {
+                                cardName = predefined.name
+                            }
+                        }
                     
                     TextField("Last 4 Digits (Optional)", text: $lastFourDigits)
                         .keyboardType(.numberPad)
@@ -313,13 +345,19 @@ struct AddCardView: View {
                                 lastFourDigits: lastFourDigits,
                                 dueDate: dueDateDay,
                                 colorHex: selectedColor,
-                                reminderDaysAhead: reminderDaysAhead
+                                reminderDaysAhead: reminderDaysAhead,
+                                predefinedCardId: selectedPredefinedCard?.id,
+                                cardAnniversaryDate: Date()
                             )
                             isPresented = false
                         }
                     }
                     .disabled(cardName.isEmpty)
                 }
+            }
+            .task {
+                await benefitsService.fetchCardBenefits()
+            }
             }
         }
     }
@@ -345,6 +383,7 @@ struct EditCardView: View {
     @State private var isLastDayOfMonth = false
     @State private var selectedColor = ""
     @State private var reminderDaysAhead = 5
+    @State private var showBenefits = false
     
     init(viewModel: CardViewModel, card: CreditCard, isPresented: Binding<Bool>) {
         self.viewModel = viewModel
@@ -464,6 +503,27 @@ struct EditCardView: View {
                     }
                     .padding(.vertical, 4)
                 }
+                
+                Section(header: Text("Benefits")) {
+                    Button(action: {
+                        showBenefits = true
+                    }) {
+                        HStack {
+                            Image(systemName: "gift.fill")
+                                .foregroundColor(.blue)
+                            Text("Manage Benefits")
+                            Spacer()
+                            if let benefits = card.benefits, !benefits.isEmpty {
+                                Text("\(benefits.filter { $0.isActive }.count)")
+                                    .foregroundColor(.gray)
+                            }
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
             .navigationTitle("Edit Card")
             .navigationBarTitleDisplayMode(.inline)
@@ -489,6 +549,11 @@ struct EditCardView: View {
                         }
                     }
                     .disabled(cardName.isEmpty)
+                }
+            }
+            .sheet(isPresented: $showBenefits) {
+                NavigationView {
+                    BenefitsListView(card: card)
                 }
             }
         }
