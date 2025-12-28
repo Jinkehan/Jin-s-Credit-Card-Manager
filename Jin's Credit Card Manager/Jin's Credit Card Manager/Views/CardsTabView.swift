@@ -358,7 +358,6 @@ struct AddCardView: View {
             .task {
                 await benefitsService.fetchCardBenefits()
             }
-            }
         }
     }
     

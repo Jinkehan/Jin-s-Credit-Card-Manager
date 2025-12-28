@@ -15,13 +15,21 @@ struct CardBenefitsResponse: Codable {
 }
 
 // MARK: - Predefined Card
-struct PredefinedCard: Codable, Identifiable {
+struct PredefinedCard: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     let issuer: String
     let cardNetwork: String
     let category: String
     let defaultBenefits: [PredefinedBenefit]
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: PredefinedCard, rhs: PredefinedCard) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 // MARK: - Predefined Benefit

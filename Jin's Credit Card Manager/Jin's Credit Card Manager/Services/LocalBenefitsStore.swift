@@ -83,7 +83,7 @@ class LocalBenefitsStore {
             cardId: cardId,
             benefitId: predefinedBenefit.id,
             name: predefinedBenefit.name,
-            description: predefinedBenefit.description,
+            benefitDescription: predefinedBenefit.description,
             category: predefinedBenefit.category,
             amount: value.amount,
             currency: value.currency,

@@ -24,6 +24,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Cards", systemImage: "creditcard.fill")
                 }
+            
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
         }
         .accentColor(.blue)
         .onAppear {

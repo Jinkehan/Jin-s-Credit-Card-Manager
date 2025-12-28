@@ -7,6 +7,7 @@
 
 import Foundation
 import Network
+import Combine
 
 @MainActor
 class CardBenefitsService: ObservableObject {
@@ -17,7 +18,7 @@ class CardBenefitsService: ObservableObject {
     @Published var lastFetchDate: Date?
     @Published var errorMessage: String?
     
-    private let githubRawURL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/card-benefits.json"
+    private let githubRawURL = "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/card-benefits.json"
     private let cacheKey = "cardBenefitsCache"
     private let lastFetchKey = "cardBenefitsLastFetch"
     private let cacheVersionKey = "cardBenefitsVersion"
@@ -35,7 +36,10 @@ class CardBenefitsService: ObservableObject {
     
     private func startNetworkMonitoring() {
         monitor.pathUpdateHandler = { [weak self] path in
-            self?.isNetworkAvailable = path.status == .satisfied
+            let isAvailable = path.status == .satisfied
+            Task { @MainActor [weak self] in
+                self?.isNetworkAvailable = isAvailable
+            }
         }
         monitor.start(queue: queue)
     }
@@ -91,7 +95,13 @@ class CardBenefitsService: ObservableObject {
         }
         
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            // Create a custom URLSession with fresh configuration to avoid caching
+            let config = URLSessionConfiguration.default
+            config.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            config.urlCache = nil
+            let session = URLSession(configuration: config)
+            
+            let (data, response) = try await session.data(from: url)
             
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {

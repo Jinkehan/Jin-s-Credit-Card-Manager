@@ -15,7 +15,7 @@ final class CardBenefit {
     var cardId: String // Links to CreditCard
     var benefitId: String? // If from predefined card, stores the predefined benefit ID
     var name: String
-    var description: String
+    var benefitDescription: String
     var category: String
     var amount: Double?
     var currency: String
@@ -39,7 +39,7 @@ final class CardBenefit {
         cardId: String,
         benefitId: String? = nil,
         name: String,
-        description: String,
+        benefitDescription: String,
         category: String,
         amount: Double? = nil,
         currency: String = "USD",
@@ -59,7 +59,7 @@ final class CardBenefit {
         self.cardId = cardId
         self.benefitId = benefitId
         self.name = name
-        self.description = description
+        self.benefitDescription = benefitDescription
         self.category = category
         self.amount = amount
         self.currency = currency

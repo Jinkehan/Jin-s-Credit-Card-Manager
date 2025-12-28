@@ -24,10 +24,11 @@ class BenefitsViewModel {
         self.card = card
         guard let context = modelContext else { return }
         
-        let descriptor = FetchDescriptor<CardBenefit>(
-            predicate: #Predicate<CardBenefit> { $0.cardId == card.id }
-        )
-        benefits = (try? context.fetch(descriptor)) ?? []
+        // Use relationship-based fetch instead of predicate with captured variable
+        // SwiftData predicates have limitations with external variable capture
+        let descriptor = FetchDescriptor<CardBenefit>()
+        let allBenefits = (try? context.fetch(descriptor)) ?? []
+        benefits = allBenefits.filter { $0.cardId == card.id }
     }
     
     func addCustomBenefit(
@@ -48,7 +49,7 @@ class BenefitsViewModel {
         let benefit = CardBenefit(
             cardId: card.id,
             name: name,
-            description: description,
+            benefitDescription: description,
             category: category,
             amount: amount,
             currency: currency,
@@ -92,7 +93,7 @@ class BenefitsViewModel {
         guard let context = modelContext else { return }
         
         benefit.name = name
-        benefit.description = description
+        benefit.benefitDescription = description
         benefit.category = category
         benefit.amount = amount
         benefit.currency = currency

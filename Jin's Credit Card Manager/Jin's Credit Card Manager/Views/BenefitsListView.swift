@@ -99,7 +99,7 @@ struct BenefitRowView: View {
                     }
                 }
                 
-                Text(benefit.description)
+                Text(benefit.benefitDescription)
                     .font(.caption)
                     .foregroundColor(.gray)
                     .lineLimit(2)
@@ -203,7 +203,7 @@ struct AddBenefitView: View {
                 Section(header: Text("Reminder Settings")) {
                     Picker("Reminder Type", selection: $reminderType) {
                         ForEach(reminderTypes, id: \.self) { type in
-                            Text(type.capitalized.replacingOccurrences(of: "_", with: ")).tag(type)
+                            Text(type.capitalized.replacingOccurrences(of: "_", with: " ")).tag(type)
                         }
                     }
                     .onChange(of: reminderType) { oldValue, newValue in
@@ -306,7 +306,7 @@ struct EditBenefitView: View {
         self._isPresented = isPresented
         
         _name = State(initialValue: benefit.name)
-        _description = State(initialValue: benefit.description)
+        _description = State(initialValue: benefit.benefitDescription)
         _category = State(initialValue: benefit.category)
         _amount = State(initialValue: benefit.amount)
         _currency = State(initialValue: benefit.currency)
