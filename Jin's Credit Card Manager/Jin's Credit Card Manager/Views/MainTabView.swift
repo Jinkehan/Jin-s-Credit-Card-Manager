@@ -17,15 +17,15 @@ struct MainTabView: View {
         TabView {
             ReminderTabView(viewModel: viewModel)
                 .tabItem {
-                    Label("Reminders", systemImage: "bell.fill")
+                    Label("Dues", systemImage: "calendar.badge.clock")
                 }
             
-            CardsTabView(viewModel: viewModel)
+            BenefitsTabView(viewModel: viewModel)
                 .tabItem {
-                    Label("Cards", systemImage: "creditcard.fill")
+                    Label("Benefits", systemImage: "gift.fill")
                 }
             
-            SettingsView()
+            SettingsView(viewModel: viewModel)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
                 }

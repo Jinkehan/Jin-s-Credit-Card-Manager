@@ -9,33 +9,18 @@ import SwiftUI
 
 struct ReminderTabView: View {
     @Bindable var viewModel: CardViewModel
-    @State private var showTestAlert = false
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 // Header
                 HStack(spacing: 12) {
-                    Image(systemName: "bell.fill")
+                    Image(systemName: "calendar.badge.clock")
                         .font(.system(size: 32))
                         .foregroundColor(.blue)
                     
-                    Text("Payment Reminders")
+                    Text("Payment Dues")
                         .font(.system(size: 34, weight: .bold))
-                    
-                    Spacer()
-                    
-                    // Test Notification Button (for development)
-                    Button(action: {
-                        showTestAlert = true
-                    }) {
-                        Image(systemName: "bell.badge.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.orange)
-                            .padding(8)
-                            .background(Color.orange.opacity(0.1))
-                            .cornerRadius(8)
-                    }
                 }
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -75,22 +60,6 @@ struct ReminderTabView: View {
             .padding(.bottom, 24)
         }
         .background(Color(.systemGroupedBackground))
-        .alert("Test Notification", isPresented: $showTestAlert) {
-            Button("Cancel", role: .cancel) { }
-            if let firstCard = viewModel.cards.first {
-                Button("Send Test (10 sec)") {
-                    Task {
-                        await NotificationManager.shared.scheduleTestNotification(for: firstCard)
-                    }
-                }
-            }
-        } message: {
-            if viewModel.cards.isEmpty {
-                Text("Please add a card first to test notifications.")
-            } else {
-                Text("A test notification will appear in 10 seconds for your first card. Make sure notifications are enabled!")
-            }
-        }
     }
 }
 
@@ -101,34 +70,33 @@ struct ReminderCardView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Card color indicator
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(card.color)
-                    .frame(width: 64, height: 64)
-                
-                Image(systemName: "creditcard.fill")
-                    .font(.system(size: 32))
-                    .foregroundColor(.white)
-            }
+            // Card image
+            CardImageView(card: card)
             
             // Card info
             VStack(alignment: .leading, spacing: 4) {
-                Text(card.name)
-                    .font(.system(size: 17, weight: .semibold))
-                
-                Text("•••• \(card.lastFourDigits)")
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                HStack(spacing: 6) {
+                    Text(card.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    
+                    if !card.lastFourDigits.isEmpty {
+                        Text(card.lastFourDigits)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
                 
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.system(size: 12))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     
                     Text(formatDate(dueDate))
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             

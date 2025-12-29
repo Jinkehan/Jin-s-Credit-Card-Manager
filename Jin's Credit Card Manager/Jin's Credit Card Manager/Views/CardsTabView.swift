@@ -119,38 +119,22 @@ struct CardItemView: View {
     }
     
     private var cardContent: some View {
-        HStack(spacing: 16) {
-            // Card color indicator
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(card.color)
-                    .frame(width: 64, height: 64)
-                
-                Image(systemName: "creditcard.fill")
-                    .font(.system(size: 32))
-                    .foregroundColor(.white)
-            }
+        HStack(spacing: 12) {
+            // Card image
+            CardImageView(card: card)
             
             // Card info
             VStack(alignment: .leading, spacing: 4) {
                 Text(card.name)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.headline)
+                    .foregroundColor(.primary)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                 
                 if !card.lastFourDigits.isEmpty {
-                    Text("•••• \(card.lastFourDigits)")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
-                }
-                
-                HStack(spacing: 6) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
-                    
-                    Text("Due on the \(card.dueDateDescription) of each month")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                    Text(card.lastFourDigits)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             
@@ -175,15 +159,6 @@ struct CardItemView: View {
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
-    
-    private func getOrdinalSuffix(_ day: Int) -> String {
-        switch day {
-        case 1, 21, 31: return "st"
-        case 2, 22: return "nd"
-        case 3, 23: return "rd"
-        default: return "th"
-        }
-    }
 }
 
 struct AddCardView: View {
@@ -195,7 +170,6 @@ struct AddCardView: View {
     @State private var lastFourDigits = ""
     @State private var selectedDate = Date()
     @State private var isLastDayOfMonth = false
-    @State private var selectedColor = CardColors.colors[0]
     @State private var reminderDaysAhead = 5
     @State private var selectedPredefinedCard: PredefinedCard?
     @State private var showPredefinedCardPicker = false
@@ -274,30 +248,6 @@ struct AddCardView: View {
                         .foregroundColor(.gray)
                 }
                 
-                Section(header: Text("Card Color")) {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-                        ForEach(CardColors.colors, id: \.self) { color in
-                            Button(action: {
-                                selectedColor = color
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(hex: color))
-                                        .frame(height: 48)
-                                    
-                                    if selectedColor == color {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.blue, lineWidth: 4)
-                                            .frame(height: 48)
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-                
                 Section(header: Text("Reminder Settings")) {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Remind me \(reminderDaysAhead) day\(reminderDaysAhead == 1 ? "" : "s") before due date")
@@ -344,7 +294,6 @@ struct AddCardView: View {
                                 name: cardName,
                                 lastFourDigits: lastFourDigits,
                                 dueDate: dueDateDay,
-                                colorHex: selectedColor,
                                 reminderDaysAhead: reminderDaysAhead,
                                 predefinedCardId: selectedPredefinedCard?.id,
                                 cardAnniversaryDate: Date()
@@ -376,13 +325,15 @@ struct EditCardView: View {
     let card: CreditCard
     @Binding var isPresented: Bool
     
+    @ObservedObject private var benefitsService = CardBenefitsService.shared
     @State private var cardName = ""
     @State private var lastFourDigits = ""
     @State private var selectedDate = Date()
     @State private var isLastDayOfMonth = false
-    @State private var selectedColor = ""
     @State private var reminderDaysAhead = 5
     @State private var showBenefits = false
+    @State private var selectedPredefinedCard: PredefinedCard?
+    @State private var showCardPicker = false
     
     init(viewModel: CardViewModel, card: CreditCard, isPresented: Binding<Bool>) {
         self.viewModel = viewModel
@@ -393,8 +344,12 @@ struct EditCardView: View {
         self._cardName = State(initialValue: card.name)
         self._lastFourDigits = State(initialValue: card.lastFourDigits)
         self._isLastDayOfMonth = State(initialValue: card.isLastDayOfMonth)
-        self._selectedColor = State(initialValue: card.colorHex)
         self._reminderDaysAhead = State(initialValue: card.reminderDaysAhead)
+        
+        // Initialize selected predefined card if the card has one
+        if let predefinedCardId = card.predefinedCardId {
+            self._selectedPredefinedCard = State(initialValue: CardBenefitsService.shared.getPredefinedCard(byId: predefinedCardId))
+        }
         
         // Set initial date
         if !card.isLastDayOfMonth {
@@ -424,6 +379,29 @@ struct EditCardView: View {
         NavigationView {
             Form {
                 Section(header: Text("Card Information")) {
+                    // Card Type Selection Row
+                    Button(action: {
+                        showCardPicker = true
+                    }) {
+                        HStack {
+                            Text("Card Type")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            if let predefinedCard = selectedPredefinedCard {
+                                Text("\(predefinedCard.name)")
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            } else {
+                                Text("Custom")
+                                    .foregroundColor(.gray)
+                            }
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     TextField("Card Name", text: $cardName)
                         .autocapitalization(.words)
                     
@@ -447,30 +425,6 @@ struct EditCardView: View {
                     Text("Payment due on the \(dueDateDescription) of each month")
                         .font(.caption)
                         .foregroundColor(.gray)
-                }
-                
-                Section(header: Text("Card Color")) {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-                        ForEach(CardColors.colors, id: \.self) { color in
-                            Button(action: {
-                                selectedColor = color
-                            }) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color(hex: color))
-                                        .frame(height: 48)
-                                    
-                                    if selectedColor == color {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.blue, lineWidth: 4)
-                                            .frame(height: 48)
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 8)
                 }
                 
                 Section(header: Text("Reminder Settings")) {
@@ -541,8 +495,8 @@ struct EditCardView: View {
                                 name: cardName,
                                 lastFourDigits: lastFourDigits,
                                 dueDate: dueDateDay,
-                                colorHex: selectedColor,
-                                reminderDaysAhead: reminderDaysAhead
+                                reminderDaysAhead: reminderDaysAhead,
+                                predefinedCardId: selectedPredefinedCard?.id
                             )
                             isPresented = false
                         }
@@ -554,6 +508,16 @@ struct EditCardView: View {
                 NavigationView {
                     BenefitsListView(card: card)
                 }
+            }
+            .sheet(isPresented: $showCardPicker) {
+                CardPickerView(
+                    selectedCard: $selectedPredefinedCard,
+                    isPresented: $showCardPicker,
+                    onCardSelected: { predefinedCard in
+                        selectedPredefinedCard = predefinedCard
+                        // Don't change the card name - it should remain what the user set
+                    }
+                )
             }
         }
     }
@@ -568,16 +532,129 @@ struct EditCardView: View {
     }
 }
 
-struct CardColors {
-    static let colors = [
-        "#3B82F6", // blue
-        "#8B5CF6", // purple
-        "#EC4899", // pink
-        "#10B981", // green
-        "#F59E0B", // amber
-        "#EF4444", // red
-        "#6366F1", // indigo
-        "#14B8A6", // teal
-    ]
+struct CardPickerView: View {
+    @Binding var selectedCard: PredefinedCard?
+    @Binding var isPresented: Bool
+    var onCardSelected: (PredefinedCard?) -> Void
+    
+    @ObservedObject private var benefitsService = CardBenefitsService.shared
+    @State private var searchText = ""
+    
+    private var filteredCards: [PredefinedCard] {
+        if searchText.isEmpty {
+            return benefitsService.predefinedCards
+        } else {
+            return benefitsService.searchPredefinedCards(query: searchText)
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Search Bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    
+                    TextField("Search cards...", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .autocapitalization(.none)
+                    
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding()
+                
+                // Cards List
+                List {
+                    // "Others" option at the top
+                    Button(action: {
+                        selectedCard = nil
+                        onCardSelected(nil)
+                        isPresented = false
+                    }) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Others")
+                                    .font(.system(size: 17, weight: .semibold))
+                                Text("Custom card not in the list")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Spacer()
+                            
+                            if selectedCard == nil {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.blue)
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Predefined cards
+                    ForEach(filteredCards) { card in
+                        Button(action: {
+                            selectedCard = card
+                            onCardSelected(card)
+                            isPresented = false
+                        }) {
+                            HStack(spacing: 12) {
+                                // Card icon or image placeholder
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.blue.opacity(0.1))
+                                        .frame(width: 50, height: 32)
+                                    
+                                    Image(systemName: "creditcard.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.blue)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(card.name)
+                                        .font(.system(size: 17, weight: .semibold))
+                                    Text(card.issuer)
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                if selectedCard?.id == card.id {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                .listStyle(.plain)
+            }
+            .navigationTitle("Select Card")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+            }
+        }
+    }
 }
 

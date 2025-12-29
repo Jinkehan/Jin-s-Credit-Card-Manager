@@ -15,8 +15,6 @@ final class CreditCard {
     var name: String
     var lastFourDigits: String
     var dueDate: Int // Day of the month (1-31, or 0 for last day of month)
-    var colorHex: String
-    var cardType: String? // Optional: Specific card type (e.g., "Amex Gold", "Chase Sapphire Reserve") for benefits tracking
     var reminderDaysAhead: Int // Days before due date to show reminder
     var predefinedCardId: String? // If user selected a predefined card from JSON
     var cardAnniversaryDate: Date? // For annual benefit calculations
@@ -29,8 +27,6 @@ final class CreditCard {
         name: String,
         lastFourDigits: String,
         dueDate: Int,
-        colorHex: String,
-        cardType: String? = nil,
         reminderDaysAhead: Int = 5,
         predefinedCardId: String? = nil,
         cardAnniversaryDate: Date? = nil
@@ -39,15 +35,9 @@ final class CreditCard {
         self.name = name
         self.lastFourDigits = lastFourDigits
         self.dueDate = dueDate
-        self.colorHex = colorHex
-        self.cardType = cardType
         self.reminderDaysAhead = reminderDaysAhead
         self.predefinedCardId = predefinedCardId
         self.cardAnniversaryDate = cardAnniversaryDate
-    }
-    
-    var color: Color {
-        Color(hex: colorHex)
     }
     
     var isLastDayOfMonth: Bool {

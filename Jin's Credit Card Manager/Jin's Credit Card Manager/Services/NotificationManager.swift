@@ -7,7 +7,6 @@
 
 import Foundation
 import UserNotifications
-import SwiftUI
 import Combine
 
 @MainActor

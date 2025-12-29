@@ -31,15 +31,26 @@ This app follows the **MVVM (Model-View-ViewModel)** architecture:
 ```
 J Due/
 ├── Models/              # Data models (SwiftData)
-│   └── CreditCard.swift
+│   ├── CreditCard.swift
+│   ├── CardBenefit.swift
+│   └── PredefinedCard.swift
 ├── ViewModels/          # Business logic
-│   └── CardViewModel.swift
+│   ├── CardViewModel.swift
+│   └── BenefitsViewModel.swift
 ├── Views/               # UI components
 │   ├── MainTabView.swift
 │   ├── ReminderTabView.swift
-│   └── CardsTabView.swift
+│   ├── CardsTabView.swift
+│   ├── BenefitsTabView.swift
+│   ├── BenefitsListView.swift
+│   ├── SettingsView.swift
+│   ├── TestBenefitsView.swift
+│   └── SharedComponents.swift
 └── Services/            # System services
-    └── NotificationManager.swift
+    ├── NotificationManager.swift
+    ├── CardBenefitsService.swift
+    ├── ImageCacheService.swift
+    └── LocalBenefitsStore.swift
 ```
 
 ## Architecture: MVVM

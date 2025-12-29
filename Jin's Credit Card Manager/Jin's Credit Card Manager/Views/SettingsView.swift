@@ -6,11 +6,50 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
+    @Bindable var viewModel: CardViewModel
+    
     var body: some View {
         NavigationStack {
             List {
+                // My Cards Section
+                Section {
+                    NavigationLink(destination: CardsTabView(viewModel: viewModel)) {
+                        HStack {
+                            Image(systemName: "creditcard.fill")
+                                .foregroundColor(.blue)
+                                .font(.title3)
+                                .frame(width: 32)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("My Cards")
+                                    .font(.body)
+                                
+                                Text("View and manage your credit cards")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if !viewModel.cards.isEmpty {
+                                Text("\(viewModel.cards.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                } header: {
+                    Text("Cards")
+                }
+                
                 // Placeholder for future settings
                 Section {
                     HStack {
@@ -103,6 +142,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
+    SettingsView(viewModel: CardViewModel())
+        .modelContainer(for: [CreditCard.self], inMemory: true)
 }
 
