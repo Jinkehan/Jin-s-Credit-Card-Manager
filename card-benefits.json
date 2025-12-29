@@ -8,7 +8,7 @@
       "issuer": "Chase",
       "cardNetwork": "Visa",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphire_Reserve.jpeg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphirereserve.jpg",
       "defaultBenefits": [
         {
           "id": "travel_credit_annual",
@@ -184,7 +184,7 @@
       "issuer": "Chase",
       "cardNetwork": "Mastercard",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Freedom_Flex.jpeg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_FreedomFlex.avif",
       "defaultBenefits": [
         {
           "id": "quarterly_bonus",
