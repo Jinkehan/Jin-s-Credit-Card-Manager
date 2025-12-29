@@ -120,6 +120,9 @@ class CardBenefitsService: ObservableObject {
             
             saveToCache(cardBenefitsResponse)
             
+            // Fetch card images after loading benefits
+            await ImageCacheService.shared.prefetchImages(for: cardBenefitsResponse.predefinedCards)
+            
             if versionChanged {
                 print("Card benefits version updated to \(cardBenefitsResponse.schemaVersion)")
                 // Post notification that benefits were updated

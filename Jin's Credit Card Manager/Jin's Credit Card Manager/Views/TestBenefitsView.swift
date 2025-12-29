@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TestBenefitsView: View {
     @StateObject private var benefitsService = CardBenefitsService.shared
+    @StateObject private var imageCache = ImageCacheService.shared
     
     var body: some View {
         NavigationStack {
@@ -108,7 +109,7 @@ struct TestBenefitsView: View {
     private var cardsListView: some View {
         VStack(spacing: 16) {
             ForEach(benefitsService.predefinedCards) { card in
-                CardDetailView(card: card)
+                CardDetailView(card: card, imageCache: imageCache)
             }
         }
     }
@@ -161,7 +162,9 @@ struct TestBenefitsView: View {
 
 struct CardDetailView: View {
     let card: PredefinedCard
+    @ObservedObject var imageCache: ImageCacheService
     @State private var isExpanded = false
+    @State private var cardImage: UIImage?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -171,7 +174,14 @@ struct CardDetailView: View {
                     isExpanded.toggle()
                 }
             }) {
-                HStack {
+                HStack(spacing: 12) {
+                    // Card Image on the left
+                    CardImageView(
+                        cardId: card.id,
+                        imageUrl: card.imageUrl,
+                        imageCache: imageCache
+                    )
+                    
                     VStack(alignment: .leading, spacing: 4) {
                         Text(card.name)
                             .font(.headline)
@@ -488,6 +498,69 @@ struct CardInfoRow: View {
                 .foregroundColor(.primary)
             
             Spacer()
+        }
+    }
+}
+
+// MARK: - Card Image View
+
+struct CardImageView: View {
+    let cardId: String
+    let imageUrl: String?
+    @ObservedObject var imageCache: ImageCacheService
+    @State private var loadedImage: UIImage?
+    
+    var body: some View {
+        Group {
+            if let image = loadedImage {
+                // Display cached/loaded image
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 60, height: 38)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+            } else if imageCache.isImageLoading(cardId) {
+                // Loading indicator
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.gray.opacity(0.1))
+                    .frame(width: 60, height: 38)
+                    .overlay(
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    )
+            } else {
+                // Fallback icon if no image
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.blue.opacity(0.2))
+                    .frame(width: 60, height: 38)
+                    .overlay(
+                        Image(systemName: "creditcard.fill")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 20))
+                    )
+            }
+        }
+        .onAppear {
+            // Try to get cached image first
+            if let cached = imageCache.getCachedImage(for: cardId) {
+                loadedImage = cached
+            } else if let urlString = imageUrl {
+                // Fetch from network
+                Task {
+                    if let image = await imageCache.fetchImage(for: cardId, from: urlString) {
+                        loadedImage = image
+                    }
+                }
+            }
+        }
+        .onChange(of: imageCache.cachedImages[cardId]) { oldImage, newImage in
+            if let newImage = newImage {
+                loadedImage = newImage
+            }
         }
     }
 }

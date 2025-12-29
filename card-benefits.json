@@ -8,6 +8,7 @@
       "issuer": "Chase",
       "cardNetwork": "Visa",
       "category": "premium_travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphire_Reserve.jpeg",
       "defaultBenefits": [
         {
           "id": "travel_credit_annual",
@@ -97,6 +98,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.jpeg",
       "defaultBenefits": [
         {
           "id": "uber_credit",
@@ -182,6 +184,7 @@
       "issuer": "Chase",
       "cardNetwork": "Mastercard",
       "category": "cashback",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Freedom_Flex.jpeg",
       "defaultBenefits": [
         {
           "id": "quarterly_bonus",

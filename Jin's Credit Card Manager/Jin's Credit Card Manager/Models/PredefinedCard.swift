@@ -22,6 +22,7 @@ struct PredefinedCard: Codable, Identifiable, Hashable {
     let cardNetwork: String
     let category: String
     let defaultBenefits: [PredefinedBenefit]
+    let imageUrl: String? // Optional URL to card image on GitHub
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
