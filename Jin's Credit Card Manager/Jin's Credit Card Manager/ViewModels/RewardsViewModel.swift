@@ -15,16 +15,53 @@ class RewardsViewModel {
     var isLoading: Bool = false
     var errorMessage: String?
     var showingAPIKeySetup: Bool = false
+    var isVerifyingAPIKey: Bool = false
+    var verificationError: String?
+    var showingDeleteConfirmation: Bool = false
+    var hasAPIKeyStored: Bool = false
     
     private let perplexityService = PerplexityService.shared
     
-    func hasAPIKey() -> Bool {
-        return perplexityService.hasAPIKey()
+    init() {
+        hasAPIKeyStored = perplexityService.hasAPIKey()
     }
     
-    func setAPIKey(_ key: String) {
-        perplexityService.setAPIKey(key)
-        showingAPIKeySetup = false
+    func hasAPIKey() -> Bool {
+        return hasAPIKeyStored
+    }
+    
+    func deleteAPIKey() {
+        perplexityService.deleteAPIKey()
+        hasAPIKeyStored = false
+        clearRecommendations()
+    }
+    
+    func verifyAndSetAPIKey(_ key: String) async -> Bool {
+        isVerifyingAPIKey = true
+        verificationError = nil
+        
+        do {
+            let isValid = try await perplexityService.verifyAPIKey(key)
+            
+            if isValid {
+                perplexityService.setAPIKey(key)
+                hasAPIKeyStored = true
+                isVerifyingAPIKey = false
+                return true
+            } else {
+                verificationError = "Unable to verify API key"
+                isVerifyingAPIKey = false
+                return false
+            }
+        } catch let error as PerplexityError {
+            verificationError = error.errorDescription
+            isVerifyingAPIKey = false
+            return false
+        } catch {
+            verificationError = "Verification failed: \(error.localizedDescription)"
+            isVerifyingAPIKey = false
+            return false
+        }
     }
     
     func getRecommendation(for cards: [CreditCard]) async {

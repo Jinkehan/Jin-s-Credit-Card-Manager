@@ -14,7 +14,21 @@ struct RewardsTabView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
+            if !rewardsViewModel.hasAPIKey() {
+                // Show onboarding screen when no API key is set
+                APIKeyOnboardingView(
+                    rewardsViewModel: rewardsViewModel,
+                    apiKeyInput: $apiKeyInput
+                )
+            } else {
+                // Show the regular rewards interface
+                rewardsContentView
+            }
+        }
+    }
+    
+    private var rewardsContentView: some View {
+        ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     // Header
                     HStack(spacing: 12) {
@@ -191,9 +205,19 @@ struct RewardsTabView: View {
             .background(Color(.systemGroupedBackground))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        rewardsViewModel.showingAPIKeySetup = true
-                    }) {
+                    Menu {
+                        Button(action: {
+                            rewardsViewModel.showingAPIKeySetup = true
+                        }) {
+                            Label("Update API Key", systemImage: "key.fill")
+                        }
+                        
+                        Button(role: .destructive, action: {
+                            rewardsViewModel.showingDeleteConfirmation = true
+                        }) {
+                            Label("Delete API Key", systemImage: "trash")
+                        }
+                    } label: {
                         Image(systemName: "key.fill")
                             .foregroundColor(.blue)
                     }
@@ -201,13 +225,18 @@ struct RewardsTabView: View {
             }
             .sheet(isPresented: $rewardsViewModel.showingAPIKeySetup) {
                 APIKeySetupView(
-                    apiKeyInput: $apiKeyInput,
-                    onSave: {
-                        rewardsViewModel.setAPIKey(apiKeyInput)
-                    }
+                    rewardsViewModel: rewardsViewModel,
+                    apiKeyInput: $apiKeyInput
                 )
             }
-        }
+            .alert("Delete API Key?", isPresented: $rewardsViewModel.showingDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    rewardsViewModel.deleteAPIKey()
+                }
+            } message: {
+                Text("This will remove your API key. You'll need to enter it again to use AI recommendations.")
+            }
     }
 }
 
@@ -294,8 +323,8 @@ struct CardChip: View {
 
 struct APIKeySetupView: View {
     @Environment(\.dismiss) var dismiss
+    @Bindable var rewardsViewModel: RewardsViewModel
     @Binding var apiKeyInput: String
-    let onSave: () -> Void
     
     var body: some View {
         NavigationStack {
@@ -321,6 +350,17 @@ struct APIKeySetupView: View {
                             .textFieldStyle(.roundedBorder)
                             .autocapitalization(.none)
                             .autocorrectionDisabled()
+                            .disabled(rewardsViewModel.isVerifyingAPIKey)
+                        
+                        if let error = rewardsViewModel.verificationError {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                Text(error)
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            }
+                        }
                     }
                 } header: {
                     Text("API Configuration")
@@ -363,16 +403,209 @@ struct APIKeySetupView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .disabled(rewardsViewModel.isVerifyingAPIKey)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        onSave()
-                        dismiss()
+                    if rewardsViewModel.isVerifyingAPIKey {
+                        ProgressView()
+                    } else {
+                        Button("Save") {
+                            Task {
+                                let success = await rewardsViewModel.verifyAndSetAPIKey(apiKeyInput)
+                                if success {
+                                    dismiss()
+                                }
+                            }
+                        }
+                        .disabled(apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
-                    .disabled(apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+        }
+    }
+}
+
+struct APIKeyOnboardingView: View {
+    @Bindable var rewardsViewModel: RewardsViewModel
+    @Binding var apiKeyInput: String
+    @State private var showInstructions: Bool = false
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 32) {
+                // Header
+                VStack(spacing: 16) {
+                    Image(systemName: "sparkles.rectangle.stack.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.blue)
+                    
+                    Text("Maximize Your Rewards")
+                        .font(.system(size: 32, weight: .bold))
+                        .multilineTextAlignment(.center)
+                    
+                    Text("Get AI-powered recommendations for the best card to use at any store")
+                        .font(.system(size: 17))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+                .padding(.top, 60)
+                
+                // Features
+                VStack(alignment: .leading, spacing: 24) {
+                    FeatureRow(
+                        icon: "lock.shield.fill",
+                        title: "Private & Secure",
+                        description: "Your API key stays on your device, fully encrypted"
+                    )
+                }
+                .padding(.horizontal, 32)
+                
+                // API Key Setup Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("To get started, you'll need a Perplexity API key")
+                        .font(.headline)
+                        .padding(.horizontal, 32)
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "key.fill")
+                                    .foregroundColor(.blue)
+                                TextField("Enter your API key", text: $apiKeyInput)
+                                    .textFieldStyle(.plain)
+                                    .autocapitalization(.none)
+                                    .autocorrectionDisabled()
+                                    .disabled(rewardsViewModel.isVerifyingAPIKey)
+                            }
+                            .padding()
+                            .background(Color(.systemBackground))
+                            .cornerRadius(12)
+                            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                            
+                            if let error = rewardsViewModel.verificationError {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.caption)
+                                    Text(error)
+                                        .font(.caption)
+                                        .foregroundColor(.red)
+                                }
+                                .padding(.horizontal, 4)
+                            }
+                        }
+                        
+                        Button(action: {
+                            Task {
+                                await rewardsViewModel.verifyAndSetAPIKey(apiKeyInput)
+                            }
+                        }) {
+                            HStack {
+                                if rewardsViewModel.isVerifyingAPIKey {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    Text("Verifying...")
+                                        .fontWeight(.semibold)
+                                } else {
+                                    Image(systemName: "checkmark.circle.fill")
+                                    Text("Verify & Continue")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                    .disabled(rewardsViewModel.isVerifyingAPIKey || apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .opacity(rewardsViewModel.isVerifyingAPIKey || apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.6 : 1.0)
+                }
+                .padding(.horizontal, 32)
+                
+                // Instructions Toggle Button
+                Button(action: {
+                    withAnimation {
+                        showInstructions.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "questionmark.circle")
+                            .font(.caption)
+                        Text("How to get an API key")
+                            .font(.caption)
+                        Spacer()
+                        Image(systemName: showInstructions ? "chevron.up" : "chevron.down")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(.blue)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                }
+                .padding(.horizontal, 32)
+                
+                // Collapsible Instructions
+                if showInstructions {
+                    VStack(alignment: .leading, spacing: 8) {
+                        InstructionStep(number: 1, text: "Visit perplexity.ai and create an account")
+                        InstructionStep(number: 2, text: "Navigate to API settings")
+                        InstructionStep(number: 3, text: "Generate a new API key")
+                        InstructionStep(number: 4, text: "Copy and paste it above")
+                    }
+                    .padding(.horizontal, 32)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+                }
+                .padding(.top, 16)
+            }
+            .padding(.bottom, 40)
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+}
+
+struct FeatureRow: View {
+    let icon: String
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 28))
+                .foregroundColor(.blue)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+struct InstructionStep: View {
+    let number: Int
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text("\(number)")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .frame(width: 20, height: 20)
+                .background(Color.blue)
+                .clipShape(Circle())
+            
+            Text(text)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
     }
 }

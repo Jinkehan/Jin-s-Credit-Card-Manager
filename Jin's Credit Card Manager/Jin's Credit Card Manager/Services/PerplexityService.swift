@@ -52,8 +52,60 @@ class PerplexityService {
         apiKey = key  // Update the instance property
     }
     
+    func deleteAPIKey() {
+        UserDefaults.standard.removeObject(forKey: "perplexity_api_key")
+        apiKey = ""  // Clear the instance property
+    }
+    
     func hasAPIKey() -> Bool {
         return !apiKey.isEmpty
+    }
+    
+    func verifyAPIKey(_ key: String) async throws -> Bool {
+        guard !key.isEmpty else {
+            throw PerplexityError.noAPIKey
+        }
+        
+        // Send a simple test message to verify the API key works
+        let messages = [
+            PerplexityMessage(role: "system", content: "You are a helpful assistant."),
+            PerplexityMessage(role: "user", content: "Hi")
+        ]
+        
+        let request = PerplexityRequest(
+            model: "sonar-pro",
+            messages: messages,
+            temperature: 0.2,
+            max_tokens: 50
+        )
+        
+        guard let url = URL(string: baseURL) else {
+            throw PerplexityError.invalidURL
+        }
+        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let requestBody = try JSONEncoder().encode(request)
+        urlRequest.httpBody = requestBody
+        
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw PerplexityError.invalidResponse
+        }
+        
+        // Check if the API key is valid (200 status code)
+        if httpResponse.statusCode == 200 {
+            // Verify we got a valid response structure
+            let perplexityResponse = try JSONDecoder().decode(PerplexityResponse.self, from: data)
+            return perplexityResponse.choices.first?.message.content != nil
+        } else if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
+            throw PerplexityError.invalidAPIKey
+        } else {
+            throw PerplexityError.apiError(statusCode: httpResponse.statusCode)
+        }
     }
     
     func getRecommendation(for store: String, with cards: [CreditCard]) async throws -> [CardRecommendation] {
@@ -193,6 +245,7 @@ class PerplexityService {
 
 enum PerplexityError: LocalizedError {
     case noAPIKey
+    case invalidAPIKey
     case invalidURL
     case invalidResponse
     case apiError(statusCode: Int)
@@ -203,6 +256,8 @@ enum PerplexityError: LocalizedError {
         switch self {
         case .noAPIKey:
             return "No API key configured. Please add your Perplexity API key in Settings."
+        case .invalidAPIKey:
+            return "Invalid API key. Please check your key and try again."
         case .invalidURL:
             return "Invalid API URL"
         case .invalidResponse:
