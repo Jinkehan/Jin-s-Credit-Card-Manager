@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1.0.0",
-  "lastUpdated": "2025-12-25T10:00:00Z",
+  "schemaVersion": "1.0.1",
+  "lastUpdated": "2025-12-31T00:00:00Z",
   "predefinedCards": [
     {
       "id": "hello-",
@@ -573,6 +573,98 @@
             "startDate": "card_anniversary",
             "daysBefore": 30,
             "message": "Traveling soon? Remember your REI Mastercard typically has no foreign transaction fees."
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple_card",
+      "name": "Apple Card",
+      "issuer": "Goldman Sachs",
+      "cardNetwork": "Mastercard",
+      "category": "cashback",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Apple.png",
+      "defaultBenefits": [
+        {
+          "id": "apple_daily_cash_3_percent",
+          "name": "3% Daily Cash (Apple & select merchants)",
+          "description": "Earn 3% Daily Cash on purchases with Apple and select merchants when using Apple Pay (eligible merchants can change).",
+          "category": "Cashback",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "bonus"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Apple Card: check Wallet for 3% merchants and use Apple Pay where eligible."
+          }
+        },
+        {
+          "id": "apple_daily_cash_2_percent",
+          "name": "2% Daily Cash (Apple Pay)",
+          "description": "Earn 2% Daily Cash on purchases made with Apple Pay.",
+          "category": "Cashback",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "bonus"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use Apple Pay with Apple Card to earn 2% Daily Cash."
+          }
+        },
+        {
+          "id": "apple_daily_cash_1_percent",
+          "name": "1% Daily Cash (physical card)",
+          "description": "Earn 1% Daily Cash on purchases made with the physical Apple Card (titanium card).",
+          "category": "Cashback",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "bonus"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Prefer Apple Pay over the physical card when possible to earn higher Daily Cash."
+          }
+        },
+        {
+          "id": "apple_no_annual_fee",
+          "name": "No Annual Fee",
+          "description": "No annual fee.",
+          "category": "Other",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "discount"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Apple Card has no annual fee—review if the card still fits your spending needs this year."
+          }
+        },
+        {
+          "id": "apple_no_foreign_transaction_fees",
+          "name": "No Foreign Transaction Fees",
+          "description": "No foreign transaction fees on eligible purchases (terms apply).",
+          "category": "Travel",
+          "value": {
+            "amount": 0,
+            "currency": "USD",
+            "type": "discount"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Traveling soon? Remember Apple Card typically has no foreign transaction fees."
           }
         }
       ]
