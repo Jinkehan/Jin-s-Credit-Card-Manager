@@ -116,8 +116,9 @@ struct BenefitCardView: View {
                         .foregroundColor(.secondary)
                 }
             }
+            .layoutPriority(1)
             
-            Spacer()
+            Spacer(minLength: 8)
             
             // Days until expiration badge
             Text(getDaysText(daysUntilExpiration))
@@ -127,6 +128,8 @@ struct BenefitCardView: View {
                 .background(getBadgeColor(daysUntilExpiration))
                 .foregroundColor(getTextColor(daysUntilExpiration))
                 .cornerRadius(12)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(2)
         }
         .padding(16)
         .background(Color(.systemBackground))

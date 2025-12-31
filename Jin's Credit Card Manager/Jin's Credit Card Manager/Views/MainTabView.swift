@@ -25,6 +25,11 @@ struct MainTabView: View {
                     Label("Benefits", systemImage: "gift.fill")
                 }
             
+            RewardsTabView(viewModel: viewModel)
+                .tabItem {
+                    Label("Rewards", systemImage: "sparkles.rectangle.stack.fill")
+                }
+            
             SettingsView(viewModel: viewModel)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")

@@ -11,6 +11,7 @@ A native iOS app built with SwiftUI to help manage credit card payment reminders
 - 🎨 **Color Coding**: Assign colors to cards for easy identification
 - 💾 **Local Storage**: All data stored securely on device using SwiftData
 - 🔄 **Auto-Scheduling**: Notifications automatically scheduled for the next 12 months
+- ✨ **AI-Powered Rewards**: Get personalized card recommendations for maximum rewards using Perplexity AI
 
 ## Requirements
 
@@ -36,13 +37,15 @@ J Due/
 │   └── PredefinedCard.swift
 ├── ViewModels/          # Business logic
 │   ├── CardViewModel.swift
-│   └── BenefitsViewModel.swift
+│   ├── BenefitsViewModel.swift
+│   └── RewardsViewModel.swift
 ├── Views/               # UI components
 │   ├── MainTabView.swift
 │   ├── ReminderTabView.swift
 │   ├── CardsTabView.swift
 │   ├── BenefitsTabView.swift
 │   ├── BenefitsListView.swift
+│   ├── RewardsTabView.swift
 │   ├── SettingsView.swift
 │   ├── TestBenefitsView.swift
 │   └── SharedComponents.swift
@@ -50,7 +53,8 @@ J Due/
     ├── NotificationManager.swift
     ├── CardBenefitsService.swift
     ├── ImageCacheService.swift
-    └── LocalBenefitsStore.swift
+    ├── LocalBenefitsStore.swift
+    └── PerplexityService.swift
 ```
 
 ## Architecture: MVVM
@@ -97,7 +101,15 @@ User Action → View → ViewModel → Model → SwiftData
 - Edit existing cards to update any field
 - Delete cards (automatically cancels associated notifications)
 
-### 3. Notification System
+### 3. Rewards Tab (NEW!)
+- **AI-Powered Recommendations**: Enter any store name and get personalized card recommendations
+- **Maximize Rewards**: Find the best card for each purchase based on your wallet
+- **Smart Analysis**: Considers category bonuses, merchant-specific rewards, and cashback rates
+- **Multiple Options**: Get up to 3 ranked recommendations with estimated reward rates
+- **Perplexity Integration**: Powered by Perplexity AI for accurate, real-time recommendations
+- **Easy Setup**: Simple API key configuration in-app
+
+### 4. Notification System
 - **Automatic Scheduling**: Notifications are automatically scheduled when you add or edit a card
 - **8 AM Delivery**: All notifications are delivered at 8:00 AM on the reminder day
 - **12-Month Horizon**: Notifications scheduled for the next 12 months
@@ -117,9 +129,10 @@ All data is stored locally using **SwiftData**:
 ## Privacy
 
 - ✅ All data stored locally on device
-- ✅ No network requests
 - ✅ No analytics or tracking
 - ✅ No data collection
+- ℹ️ Rewards feature requires Perplexity API (optional, user-provided API key)
+- ℹ️ API key stored securely in UserDefaults on device
 
 ## Development
 
@@ -144,9 +157,23 @@ Run the app in simulator and test:
 
 See `ATTRIBUTIONS.md` for third-party acknowledgments.
 
+## Setup Instructions
+
+### Perplexity API Key (for Rewards feature)
+
+1. Visit [perplexity.ai](https://www.perplexity.ai)
+2. Sign up or log in to your account
+3. Navigate to API settings
+4. Generate a new API key
+5. In the app, go to the Rewards tab
+6. Tap the key icon in the top right
+7. Enter your API key and save
+
+The Rewards feature will not work without an API key, but all other features remain fully functional.
+
 ## Version
 
-**v1.0** - Initial Release
+**v2.0** - Added AI-Powered Rewards Recommendations
 
 ---
 
