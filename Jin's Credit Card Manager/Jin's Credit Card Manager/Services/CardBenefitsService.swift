@@ -72,7 +72,6 @@ class CardBenefitsService: ObservableObject {
     func fetchCardBenefits(forceRefresh: Bool = false) async {
         // Check if we should fetch (only if network is available and enough time has passed)
         guard isNetworkAvailable else {
-            print("Network not available, using cached data")
             return
         }
         
@@ -80,7 +79,6 @@ class CardBenefitsService: ObservableObject {
         if !forceRefresh, let lastFetch = lastFetchDate {
             let timeSinceLastFetch = Date().timeIntervalSince(lastFetch)
             if timeSinceLastFetch < 3600 { // 1 hour
-                print("Skipping fetch, last fetch was \(Int(timeSinceLastFetch)) seconds ago")
                 return
             }
         }
@@ -124,13 +122,11 @@ class CardBenefitsService: ObservableObject {
             await ImageCacheService.shared.prefetchImages(for: cardBenefitsResponse.predefinedCards)
             
             if versionChanged {
-                print("Card benefits version updated to \(cardBenefitsResponse.schemaVersion)")
                 // Post notification that benefits were updated
                 NotificationCenter.default.post(name: .cardBenefitsUpdated, object: nil)
             }
             
         } catch {
-            print("Error fetching card benefits: \(error)")
             errorMessage = "Failed to fetch card benefits: \(error.localizedDescription)"
             // If fetch fails, we still have cached data
         }

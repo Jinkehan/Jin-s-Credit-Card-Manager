@@ -81,7 +81,7 @@ struct CardImageView: View {
     }
 }
 
-// MARK: - Shared Predefined Card Image View (for TestBenefitsView)
+// MARK: - Shared Predefined Card Image View
 struct PredefinedCardImageView: View {
     let cardId: String
     let imageUrl: String?

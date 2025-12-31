@@ -144,9 +144,9 @@ struct BenefitCardView: View {
     }
     
     private func getDaysText(_ days: Int) -> String {
-        if days == 0 { return "Expires today" }
-        if days == 1 { return "Expires tomorrow" }
-        return "Expires in \(days) days"
+        if days == 0 { return "Today" }
+        if days == 1 { return "1 day" }
+        return "\(days) days"
     }
     
     private func getBadgeColor(_ days: Int) -> Color {

@@ -172,8 +172,7 @@ struct AddCardView: View {
     @State private var isLastDayOfMonth = false
     @State private var reminderDaysAhead = 5
     @State private var selectedPredefinedCard: PredefinedCard?
-    @State private var showPredefinedCardPicker = false
-    @State private var searchText = ""
+    @State private var showCardPicker = false
     
     private var dueDateDay: Int {
         if isLastDayOfMonth {
@@ -194,37 +193,32 @@ struct AddCardView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Card Type")) {
-                    Picker("Card Type", selection: $selectedPredefinedCard) {
-                        Text("Custom Card").tag(PredefinedCard?.none)
-                        ForEach(benefitsService.predefinedCards) { predefinedCard in
-                            Text("\(predefinedCard.name) - \(predefinedCard.issuer)")
-                                .tag(PredefinedCard?.some(predefinedCard))
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    
-                    if let predefinedCard = selectedPredefinedCard {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Selected: \(predefinedCard.name)")
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                            Text("\(predefinedCard.defaultBenefits.count) benefits will be added")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                
                 Section(header: Text("Card Information")) {
+                    // Card Type Selection Row
+                    Button(action: {
+                        showCardPicker = true
+                    }) {
+                        HStack {
+                            Text("Card Type")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            if let predefinedCard = selectedPredefinedCard {
+                                Text("\(predefinedCard.name)")
+                                    .foregroundColor(.gray)
+                                    .lineLimit(1)
+                            } else {
+                                Text("Custom")
+                                    .foregroundColor(.gray)
+                            }
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .font(.caption)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     TextField("Card Name", text: $cardName)
                         .autocapitalization(.words)
-                        .onChange(of: selectedPredefinedCard) { oldValue, newValue in
-                            if let predefined = newValue {
-                                cardName = predefined.name
-                            }
-                        }
                     
                     TextField("Last 4 Digits (Optional)", text: $lastFourDigits)
                         .keyboardType(.numberPad)
@@ -306,6 +300,19 @@ struct AddCardView: View {
             }
             .task {
                 await benefitsService.fetchCardBenefits()
+            }
+            .sheet(isPresented: $showCardPicker) {
+                CardPickerView(
+                    selectedCard: $selectedPredefinedCard,
+                    isPresented: $showCardPicker,
+                    onCardSelected: { predefinedCard in
+                        selectedPredefinedCard = predefinedCard
+                        // Update card name when a predefined card is selected
+                        if let predefined = predefinedCard {
+                            cardName = predefined.name
+                        }
+                    }
+                )
             }
         }
     }
@@ -538,6 +545,7 @@ struct CardPickerView: View {
     var onCardSelected: (PredefinedCard?) -> Void
     
     @ObservedObject private var benefitsService = CardBenefitsService.shared
+    @ObservedObject private var imageCache = ImageCacheService.shared
     @State private var searchText = ""
     
     private var filteredCards: [PredefinedCard] {
@@ -611,16 +619,12 @@ struct CardPickerView: View {
                             isPresented = false
                         }) {
                             HStack(spacing: 12) {
-                                // Card icon or image placeholder
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.blue.opacity(0.1))
-                                        .frame(width: 50, height: 32)
-                                    
-                                    Image(systemName: "creditcard.fill")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(.blue)
-                                }
+                                // Card image
+                                PredefinedCardImageView(
+                                    cardId: card.id,
+                                    imageUrl: card.imageUrl,
+                                    imageCache: imageCache
+                                )
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(card.name)

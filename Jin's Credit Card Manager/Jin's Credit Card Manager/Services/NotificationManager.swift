@@ -33,13 +33,11 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         // You can handle notification tap here if needed
         // For example, navigate to a specific card
         let userInfo = response.notification.request.content.userInfo
-        if let cardId = userInfo["cardId"] as? String {
-            print("User tapped notification for card: \(cardId)")
-            // You could post a notification to navigate to this card
+        if let _ = userInfo["cardId"] as? String {
+            // Handle navigation to card if needed
         }
-        if let benefitId = userInfo["benefitId"] as? String {
-            print("User tapped notification for benefit: \(benefitId)")
-            // You could post a notification to navigate to this benefit
+        if let _ = userInfo["benefitId"] as? String {
+            // Handle navigation to benefit if needed
         }
         completionHandler()
     }
@@ -53,7 +51,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             }
             return granted
         } catch {
-            print("Error requesting notification authorization: \(error)")
             return false
         }
     }
@@ -73,7 +70,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         // First check if we have permission
         let authorized = await checkAuthorizationStatus()
         guard authorized else {
-            print("Notifications not authorized")
             return
         }
         
@@ -132,9 +128,8 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             // Schedule the notification
             do {
                 try await UNUserNotificationCenter.current().add(request)
-                print("Scheduled notification for \(card.name) on \(reminderDate) at 8 AM")
             } catch {
-                print("Error scheduling notification: \(error)")
+                // Silent fail
             }
         }
     }
@@ -150,7 +145,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             .map { $0.identifier }
         
         center.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
-        print("Cancelled \(identifiersToCancel.count) notifications for card: \(card.name)")
     }
     
     // Reschedule all notifications for all cards
@@ -163,7 +157,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     // Cancel all notifications
     func cancelAllNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        print("Cancelled all pending notifications")
     }
     
     // Get pending notifications count
@@ -180,7 +173,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         
         let authorized = await checkAuthorizationStatus()
         guard authorized else {
-            print("Notifications not authorized")
             return
         }
         
@@ -207,7 +199,7 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             scheduleOneTimeBenefitReminder(for: benefit, calendar: calendar, today: today)
             
         default:
-            print("Unknown reminder type: \(benefit.reminderType)")
+            break
         }
     }
     
@@ -235,7 +227,6 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
     
     private func scheduleAnnualBenefitReminders(for benefit: CardBenefit, calendar: Calendar, today: Date) {
         guard let cardAnniversary = benefit.cardAnniversaryDate ?? benefit.card?.cardAnniversaryDate else {
-            print("No card anniversary date for annual benefit")
             return
         }
         
@@ -314,9 +305,8 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         Task {
             do {
                 try await UNUserNotificationCenter.current().add(request)
-                print("Scheduled benefit reminder for \(benefit.name) on \(date)")
             } catch {
-                print("Error scheduling benefit reminder: \(error)")
+                // Silent fail
             }
         }
     }
@@ -332,39 +322,9 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             .map { $0.identifier }
         
         center.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
-        print("Cancelled \(identifiersToCancel.count) benefit reminders for: \(benefit.name)")
     }
     
     // MARK: - Testing Helper
     
-    /// Test function to schedule a notification in 10 seconds for immediate preview
-    /// Use this for testing only - remove or comment out in production
-    func scheduleTestNotification(for card: CreditCard) async {
-        let authorized = await checkAuthorizationStatus()
-        guard authorized else {
-            print("Notifications not authorized")
-            return
-        }
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Credit Card Payment Due"
-        content.body = "\(card.name) (•••• \(card.lastFourDigits)) payment is due in \(card.reminderDaysAhead) day\(card.reminderDaysAhead == 1 ? "" : "s")"
-        content.sound = .default
-        content.categoryIdentifier = "CARD_REMINDER"
-        content.userInfo = ["cardId": card.id]
-        
-        // Trigger in 10 seconds
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false)
-        
-        let identifier = "test_\(card.id)_\(Date().timeIntervalSince1970)"
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-        
-        do {
-            try await UNUserNotificationCenter.current().add(request)
-            print("✅ Test notification scheduled! Will appear in 10 seconds.")
-        } catch {
-            print("❌ Error scheduling test notification: \(error)")
-        }
-    }
 }
 

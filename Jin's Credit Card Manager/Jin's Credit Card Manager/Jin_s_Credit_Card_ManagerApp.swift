@@ -27,6 +27,7 @@ struct JDueApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .preferredColorScheme(.light)
                 .task {
                     // Request notification permissions when app launches
                     _ = await NotificationManager.shared.requestAuthorization()

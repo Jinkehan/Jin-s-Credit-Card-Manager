@@ -31,8 +31,8 @@ final class CardBenefit {
     var resetPeriod: String? // "monthly", "annual", "semi_annual", etc.
     var cardAnniversaryDate: Date? // For annual benefit calculations
     
-    // Relationship
-    @Relationship(deleteRule: .cascade, inverse: \CreditCard.benefits) var card: CreditCard?
+    // Relationship - nullify (not cascade) to avoid circular cascade delete issues
+    @Relationship(deleteRule: .nullify, inverse: \CreditCard.benefits) var card: CreditCard?
     
     init(
         id: String = UUID().uuidString,

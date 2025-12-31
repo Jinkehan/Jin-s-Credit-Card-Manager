@@ -124,9 +124,9 @@ struct ReminderCardView: View {
     }
     
     private func getDaysText(_ days: Int) -> String {
-        if days == 0 { return "Due today" }
-        if days == 1 { return "Due tomorrow" }
-        return "Due in \(days) days"
+        if days == 0 { return "Today" }
+        if days == 1 { return "1 day" }
+        return "\(days) days"
     }
     
     private func getBadgeColor(_ days: Int) -> Color {

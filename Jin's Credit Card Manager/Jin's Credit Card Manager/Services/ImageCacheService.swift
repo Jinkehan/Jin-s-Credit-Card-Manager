@@ -63,7 +63,6 @@ class ImageCacheService: ObservableObject {
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200,
                   let image = UIImage(data: data) else {
-                print("❌ Failed to download image for \(imageId)")
                 return nil
             }
             
@@ -71,11 +70,9 @@ class ImageCacheService: ObservableObject {
             cachedImages[imageId] = image
             saveImageToDisk(image: image, imageId: imageId)
             
-            print("✅ Successfully downloaded and cached image: \(imageId)")
             return image
             
         } catch {
-            print("❌ Error downloading image for \(imageId): \(error.localizedDescription)")
             return nil
         }
     }
@@ -100,9 +97,8 @@ class ImageCacheService: ObservableObject {
             for file in files {
                 try fileManager.removeItem(at: file)
             }
-            print("✅ Cache cleared successfully")
         } catch {
-            print("❌ Error clearing cache: \(error.localizedDescription)")
+            // Silent fail
         }
     }
     
@@ -134,10 +130,8 @@ class ImageCacheService: ObservableObject {
                     cachedImages[imageId] = image
                 }
             }
-            
-            print("✅ Loaded \(cachedImages.count) cached images")
         } catch {
-            print("❌ Error loading cached images: \(error.localizedDescription)")
+            // Silent fail
         }
     }
     
@@ -157,15 +151,13 @@ class ImageCacheService: ObservableObject {
         let fileURL = cacheDirectory.appendingPathComponent("\(imageId).jpg")
         
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            print("❌ Failed to convert image to JPEG data")
             return
         }
         
         do {
             try imageData.write(to: fileURL)
-            print("✅ Saved image to disk: \(imageId)")
         } catch {
-            print("❌ Error saving image to disk: \(error.localizedDescription)")
+            // Silent fail
         }
     }
     

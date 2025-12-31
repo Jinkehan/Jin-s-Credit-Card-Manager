@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @Observable
 class CardViewModel {
@@ -116,14 +117,30 @@ class CardViewModel {
     func deleteCard(_ card: CreditCard) {
         guard let context = modelContext else { return }
         
-        // Cancel notifications for the card before deleting
-        Task {
-            await NotificationManager.shared.cancelNotifications(for: card)
+        // Capture card ID for notification cancellation
+        let cardId = card.id
+        
+        // Manually delete benefits first to avoid cascade delete issues
+        if let benefits = card.benefits {
+            for benefit in benefits {
+                context.delete(benefit)
+            }
         }
         
+        // Delete the card itself
         context.delete(card)
         try? context.save()
         loadData()
+        
+        // Cancel notifications in the background AFTER card is deleted
+        Task {
+            let center = UNUserNotificationCenter.current()
+            let pendingRequests = await center.pendingNotificationRequests()
+            let identifiersToCancel = pendingRequests
+                .filter { $0.identifier.starts(with: cardId) }
+                .map { $0.identifier }
+            center.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
+        }
     }
     
     func getUpcomingReminders() -> [(card: CreditCard, dueDate: Date, daysUntilDue: Int)] {
