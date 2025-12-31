@@ -625,6 +625,12 @@ struct CardPickerView: View {
                                     imageUrl: card.imageUrl,
                                     imageCache: imageCache
                                 )
+                                .frame(width: 60, height: 38)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(card.name)

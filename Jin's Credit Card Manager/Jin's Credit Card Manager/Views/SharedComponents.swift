@@ -81,7 +81,7 @@ struct CardImageView: View {
     }
 }
 
-// MARK: - Shared Predefined Card Image View
+// MARK: - Shared Predefined Card Image View (used in CardsTabView and AllCardsView)
 struct PredefinedCardImageView: View {
     let cardId: String
     let imageUrl: String?
@@ -95,31 +95,20 @@ struct PredefinedCardImageView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 38)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
             } else if imageCache.isImageLoading(cardId) {
                 // Loading indicator
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(width: 60, height: 38)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    )
+                ZStack {
+                    Color.gray.opacity(0.1)
+                    ProgressView()
+                }
             } else {
                 // Fallback icon if no image
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.blue.opacity(0.2))
-                    .frame(width: 60, height: 38)
-                    .overlay(
-                        Image(systemName: "creditcard.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 20))
-                    )
+                ZStack {
+                    Color.blue.opacity(0.2)
+                    Image(systemName: "creditcard.fill")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 30))
+                }
             }
         }
         .onAppear {

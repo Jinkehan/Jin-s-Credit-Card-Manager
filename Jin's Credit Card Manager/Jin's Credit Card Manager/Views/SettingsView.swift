@@ -91,6 +91,30 @@ struct SettingsView: View {
                     Text("Preferences")
                 }
                 
+                // Card Database Section
+                Section {
+                    NavigationLink(destination: AllCardsView()) {
+                        HStack {
+                            Image(systemName: "creditcard.and.123")
+                                .foregroundColor(.blue)
+                                .font(.title3)
+                                .frame(width: 32)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("All Available Cards")
+                                    .font(.body)
+                                
+                                Text("Browse all preset cards and their default benefits")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                } header: {
+                    Text("Card Database")
+                }
+                
                 // About Section
                 Section {
                     VStack(alignment: .center, spacing: 8) {
