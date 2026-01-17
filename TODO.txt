@@ -1,4 +1,2 @@
-1. Check notification working
-2. App should have notification pop up for cards wihin set due dates not paid yet.
-3. Allow to mark card ue as paid
-4. Benefits tab show total benefits earned
+1. update benefits for all cards
+2. refine ui for benefits display

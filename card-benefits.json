@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.1",
-  "lastUpdated": "2025-12-31T00:00:00Z",
+  "lastUpdated": "2026-01-17T19:48:24Z",
   "predefinedCards": [
     {
       "id": "hello-",
@@ -9,88 +9,7 @@
       "cardNetwork": "Visa",
       "category": "premium_travel",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphirereserve.jpg",
-      "defaultBenefits": [
-        {
-          "id": "travel_credit_annual",
-          "name": "$300 Annual Travel Credit",
-          "description": "Automatically applied to travel purchases. Resets annually on card anniversary.",
-          "category": "Travel",
-          "value": {
-            "amount": 300,
-            "currency": "USD",
-            "type": "credit"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 30,
-            "message": "Don't forget to use your $300 travel credit before it resets!"
-          },
-          "usageTracking": {
-            "enabled": true,
-            "resetPeriod": "annual"
-          }
-        },
-        {
-          "id": "priority_pass",
-          "name": "Priority Pass Select Membership",
-          "description": "Complimentary access to 1,300+ airport lounges worldwide",
-          "category": "Travel",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "membership"
-          },
-          "reminder": {
-            "type": "one_time",
-            "date": "2025-01-15",
-            "message": "Activate your Priority Pass membership to access airport lounges"
-          }
-        },
-        {
-          "id": "global_entry_tsa",
-          "name": "Global Entry / TSA PreCheck Credit",
-          "description": "$100 credit every 4 years for Global Entry or TSA PreCheck application fee",
-          "category": "Travel",
-          "value": {
-            "amount": 100,
-            "currency": "USD",
-            "type": "credit",
-            "validityPeriod": "4_years"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 60,
-            "message": "You may be eligible for a Global Entry/TSA PreCheck credit renewal"
-          },
-          "usageTracking": {
-            "enabled": true,
-            "resetPeriod": "annual"
-          }
-        },
-        {
-          "id": "dining_credit",
-          "name": "DoorDash Credit",
-          "description": "$5 monthly DoorDash credit (DashPass membership required)",
-          "category": "Dining",
-          "value": {
-            "amount": 5,
-            "currency": "USD",
-            "type": "credit",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Use your $5 DoorDash credit this month!"
-          },
-          "usageTracking": {
-            "enabled": true,
-            "resetPeriod": "monthly"
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "amex_platinum",
@@ -99,25 +18,49 @@
       "cardNetwork": "Amex",
       "category": "premium_travel",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.jpeg",
+      "defaultBenefits": []
+    },
+    {
+      "id": "chase_freedom_flex",
+      "name": "Chase Freedom Flex",
+      "issuer": "Chase",
+      "cardNetwork": "Mastercard",
+      "category": "cashback",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_FreedomFlex.avif",
+      "defaultBenefits": []
+    },
+    {
+      "id": "amazon_store_card",
+      "name": "Amazon Prime Store Card",
+      "issuer": "Synchrony Bank",
+      "cardNetwork": "Store",
+      "category": "store",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amazon_Store.png",
+      "defaultBenefits": []
+    },
+    {
+      "id": "amex_gold",
+      "name": "American Express Gold Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "rewards",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Gold.avif",
       "defaultBenefits": [
         {
-          "id": "uber_credit",
-          "name": "Uber Cash Credit",
-          "description": "$15 monthly Uber credit ($35 in December)",
-          "category": "Transportation",
+          "id": "amex_gold_dunkin_credit",
+          "name": "Dunkin Credit",
+          "description": "With the $84 Dunkin' Credit, you can earn up to $7 in monthly statement credits after you enroll and pay with the American Express® Gold Card at U.S. Dunkin' locations.",
+          "category": "Dining",
           "value": {
-            "amount": 15,
+            "amount": 7,
             "currency": "USD",
             "type": "credit",
-            "frequency": "monthly",
-            "specialMonths": {
-              "12": 35
-            }
+            "frequency": "monthly"
           },
           "reminder": {
             "type": "monthly",
             "dayOfMonth": 1,
-            "message": "Use your $15 Uber credit this month! ($35 in December)"
+            "message": "Use your $7 Dunkin credit this month before it expires at month's end!"
           },
           "usageTracking": {
             "enabled": true,
@@ -125,31 +68,10 @@
           }
         },
         {
-          "id": "airline_fee_credit",
-          "name": "Airline Fee Credit",
-          "description": "$200 annual credit for airline incidental fees with selected airline",
-          "category": "Travel",
-          "value": {
-            "amount": 200,
-            "currency": "USD",
-            "type": "credit"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 60,
-            "message": "Don't forget to use your $200 airline fee credit!"
-          },
-          "usageTracking": {
-            "enabled": true,
-            "resetPeriod": "annual"
-          }
-        },
-        {
-          "id": "saks_credit",
-          "name": "Saks Fifth Avenue Credit",
-          "description": "$50 credit every 6 months (January-June and July-December)",
-          "category": "Shopping",
+          "id": "amex_gold_resy_credit",
+          "name": "Resy Credit",
+          "description": "Get up to $100 in statement credits each calendar year after you pay with the American Express® Gold Card to dine at U.S. Resy restaurants or make other eligible Resy purchases. That's up to $50 in statement credits from January through June and up to $50 in statement credits from July through December. Enrollment required.",
+          "category": "Dining",
           "value": {
             "amount": 50,
             "currency": "USD",
@@ -169,99 +91,17 @@
               }
             ],
             "dayOfMonth": 1,
-            "message": "Use your $50 Saks credit for this half of the year!"
+            "message": "Use your $50 Resy credit for this half of the year before it expires at the end of the period!"
           },
           "usageTracking": {
             "enabled": true,
             "resetPeriod": "semi_annual"
           }
-        }
-      ]
-    },
-    {
-      "id": "chase_freedom_flex",
-      "name": "Chase Freedom Flex",
-      "issuer": "Chase",
-      "cardNetwork": "Mastercard",
-      "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_FreedomFlex.avif",
-      "defaultBenefits": [
-        {
-          "id": "quarterly_bonus",
-          "name": "5% Quarterly Bonus Categories",
-          "description": "Earn 5% cash back on rotating categories (up to $1,500 per quarter)",
-          "category": "Cashback",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus",
-            "maxSpend": 1500,
-            "maxReward": 75
-          },
-          "reminder": {
-            "type": "quarterly",
-            "startMonth": 1,
-            "dayOfMonth": 1,
-            "message": "Check this quarter's 5% bonus categories and activate them!"
-          }
-        }
-      ]
-    },
-    {
-      "id": "amazon_store_card",
-      "name": "Amazon Prime Store Card",
-      "issuer": "Synchrony Bank",
-      "cardNetwork": "Store",
-      "category": "store",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amazon_Store.png",
-      "defaultBenefits": [
-        {
-          "id": "amazon_rewards",
-          "name": "Amazon Rewards on Amazon.com",
-          "description": "Earn rewards on eligible Amazon.com purchases (reward rates vary by Prime membership and offers).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Review your Amazon Store Card rewards and redeem if you'd like."
-          }
         },
         {
-          "id": "amazon_special_financing",
-          "name": "Special Financing Offers",
-          "description": "Access promotional financing on eligible Amazon purchases when available (terms vary by offer).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 15,
-            "message": "If you used special financing, double-check the payoff deadline to avoid interest."
-          }
-        }
-      ]
-    },
-    {
-      "id": "amex_gold",
-      "name": "American Express Gold Card",
-      "issuer": "American Express",
-      "cardNetwork": "Amex",
-      "category": "rewards",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Gold.avif",
-      "defaultBenefits": [
-        {
-          "id": "amex_gold_uber_cash",
-          "name": "Uber Cash Credit",
-          "description": "Monthly Uber Cash credit (amount varies by product/version).",
+          "id": "amex_gold_dining_credit",
+          "name": "Dining Credit",
+          "description": "Earn up to a total of $10 in statement credits monthly when you pay with the Gold Card at Grubhub, The Cheesecake Factory, Goldbelly, Wine.com, and Five Guys. This can be an annual savings of up to $120. Enrollment required.",
           "category": "Dining",
           "value": {
             "amount": 10,
@@ -272,7 +112,7 @@
           "reminder": {
             "type": "monthly",
             "dayOfMonth": 1,
-            "message": "Use your Amex Gold Uber Cash credit this month."
+            "message": "Use your $10 dining credit this month at Grubhub, The Cheesecake Factory, Goldbelly, Wine.com, or Five Guys before it expires!"
           },
           "usageTracking": {
             "enabled": true,
@@ -280,10 +120,10 @@
           }
         },
         {
-          "id": "amex_gold_dining_credit",
-          "name": "Dining Credit",
-          "description": "Monthly dining credit at participating merchants (enrollment/terms may apply).",
-          "category": "Dining",
+          "id": "amex_gold_uber_cash",
+          "name": "Uber Cash",
+          "description": "Get $10 in Uber Cash each month when you add your Gold Card to your Uber account. You can use your Uber Cash on orders from your favorite restaurants and rides with Uber in the U.S. when you select an Amex Card for your transaction.",
+          "category": "Transportation",
           "value": {
             "amount": 10,
             "currency": "USD",
@@ -293,7 +133,7 @@
           "reminder": {
             "type": "monthly",
             "dayOfMonth": 1,
-            "message": "Use your Amex Gold dining credit this month."
+            "message": "Use your $10 Uber Cash credit this month before it expires!"
           },
           "usageTracking": {
             "enabled": true,
@@ -311,37 +151,24 @@
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_DeltaGold.jpeg",
       "defaultBenefits": [
         {
-          "id": "delta_free_checked_bag",
-          "name": "First Checked Bag Free (Delta)",
-          "description": "Get your first checked bag free on Delta flights for eligible travelers on the reservation (terms apply).",
+          "id": "delta_stays_credit",
+          "name": "Delta Stays Credit",
+          "description": "Elevate your travel experience with an annual statement credit of up to $100 after using your Delta SkyMiles® Gold American Express Card to book prepaid hotels or vacation rentals through Delta Stays on delta.com. Enrollment required. Resets each calendar year (January 1 through December 31).",
           "category": "Travel",
           "value": {
-            "amount": 0,
+            "amount": 100,
             "currency": "USD",
-            "type": "discount"
+            "type": "credit"
           },
           "reminder": {
             "type": "annual",
             "startDate": "card_anniversary",
             "daysBefore": 30,
-            "message": "Remember your Delta Gold perks (like free checked bag) when booking Delta flights."
-          }
-        },
-        {
-          "id": "delta_priority_boarding",
-          "name": "Priority Boarding (Delta)",
-          "description": "Enjoy earlier boarding on Delta flights (terms apply).",
-          "category": "Travel",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount"
+            "message": "Don't forget to use your $100 Delta Stays credit before it expires at the end of the calendar year (December 31)!"
           },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 30,
-            "message": "Use your Delta Gold priority boarding benefit on your next Delta trip."
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
           }
         }
       ]
@@ -353,42 +180,7 @@
       "cardNetwork": "Mastercard",
       "category": "rewards",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Bilt.webp",
-      "defaultBenefits": [
-        {
-          "id": "bilt_rent_points",
-          "name": "Earn Points on Rent",
-          "description": "Earn points on rent payments (restrictions and terms apply; requires setup in the Bilt app).",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Pay rent via Bilt and confirm your account is linked to earn points."
-          }
-        },
-        {
-          "id": "bilt_rent_day",
-          "name": "Rent Day Promotions",
-          "description": "Rent Day (typically the 1st of each month) may include bonus earning and special promotions (varies).",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "It's Rent Day—check Bilt for any bonus earning or special promos."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "bofa_cash_rewards",
@@ -397,43 +189,7 @@
       "cardNetwork": "Visa",
       "category": "cashback",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/BofA_CashRewards.jpeg",
-      "defaultBenefits": [
-        {
-          "id": "bofa_3_percent_category",
-          "name": "3% Choice Category Cash Back",
-          "description": "Earn elevated cash back in a category you choose (selection and rates vary; terms apply).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Confirm your 3% choice category for this month (if you plan to change it)."
-          }
-        },
-        {
-          "id": "bofa_quarterly_cap",
-          "name": "Quarterly Bonus Cap",
-          "description": "The elevated 3%/2% categories are typically capped per quarter (terms apply).",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "other",
-            "frequency": "quarterly",
-            "maxSpend": 2500
-          },
-          "reminder": {
-            "type": "quarterly",
-            "startMonth": 1,
-            "dayOfMonth": 1,
-            "message": "Track progress toward your quarterly cap for bonus cash back categories."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "discover_it",
@@ -442,27 +198,7 @@
       "cardNetwork": "Discover",
       "category": "cashback",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Discover.png",
-      "defaultBenefits": [
-        {
-          "id": "discover_rotating_5_percent",
-          "name": "5% Rotating Categories",
-          "description": "Earn 5% cash back in rotating categories after activation (up to the quarterly cap; terms apply).",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus",
-            "maxSpend": 1500,
-            "maxReward": 75
-          },
-          "reminder": {
-            "type": "quarterly",
-            "startMonth": 1,
-            "dayOfMonth": 1,
-            "message": "Activate Discover's 5% categories and plan spend for this quarter."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "crate_and_barrel_mastercard",
@@ -471,41 +207,7 @@
       "cardNetwork": "Mastercard",
       "category": "store",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Imprint_Crate&Barrel.avif",
-      "defaultBenefits": [
-        {
-          "id": "crate_barrel_rewards",
-          "name": "Crate & Barrel Rewards",
-          "description": "Earn rewards on eligible Crate & Barrel family of brands purchases (rates/terms vary).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Check your Crate & Barrel rewards balance and redeem before any expiration."
-          }
-        },
-        {
-          "id": "crate_barrel_special_offers",
-          "name": "Cardholder Offers",
-          "description": "Receive cardholder-only offers and potential special financing promotions when available (terms vary).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 15,
-            "message": "If you used a Crate & Barrel promo/financing offer, confirm its payoff deadline."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "paypal_credit",
@@ -514,25 +216,7 @@
       "cardNetwork": "PayPal",
       "category": "financing",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Paypal_Credit.jpg",
-      "defaultBenefits": [
-        {
-          "id": "paypal_credit_promotional_financing",
-          "name": "Promotional Financing Offers",
-          "description": "No interest if paid in full within the promotional period on eligible purchases (terms and minimums vary).",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount",
-            "frequency": "monthly"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 15,
-            "message": "If you used PayPal Credit promo financing, review the promo end date and payoff progress."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "rei_coop_mastercard",
@@ -541,41 +225,7 @@
       "cardNetwork": "Mastercard",
       "category": "cashback",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/REI.webp",
-      "defaultBenefits": [
-        {
-          "id": "rei_rewards",
-          "name": "REI Rewards on Eligible Purchases",
-          "description": "Earn rewards on eligible purchases, including at REI and in everyday categories (rates/terms vary).",
-          "category": "Shopping",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Review your REI rewards and redeem them toward gear if you want."
-          }
-        },
-        {
-          "id": "rei_no_foreign_fees",
-          "name": "No Foreign Transaction Fees",
-          "description": "Avoid foreign transaction fees on eligible international purchases (terms apply).",
-          "category": "Travel",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 30,
-            "message": "Traveling soon? Remember your REI Mastercard typically has no foreign transaction fees."
-          }
-        }
-      ]
+      "defaultBenefits": []
     },
     {
       "id": "apple_card",
@@ -584,90 +234,7 @@
       "cardNetwork": "Mastercard",
       "category": "cashback",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Apple.png",
-      "defaultBenefits": [
-        {
-          "id": "apple_daily_cash_3_percent",
-          "name": "3% Daily Cash (Apple & select merchants)",
-          "description": "Earn 3% Daily Cash on purchases with Apple and select merchants when using Apple Pay (eligible merchants can change).",
-          "category": "Cashback",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Apple Card: check Wallet for 3% merchants and use Apple Pay where eligible."
-          }
-        },
-        {
-          "id": "apple_daily_cash_2_percent",
-          "name": "2% Daily Cash (Apple Pay)",
-          "description": "Earn 2% Daily Cash on purchases made with Apple Pay.",
-          "category": "Cashback",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Use Apple Pay with Apple Card to earn 2% Daily Cash."
-          }
-        },
-        {
-          "id": "apple_daily_cash_1_percent",
-          "name": "1% Daily Cash (physical card)",
-          "description": "Earn 1% Daily Cash on purchases made with the physical Apple Card (titanium card).",
-          "category": "Cashback",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "bonus"
-          },
-          "reminder": {
-            "type": "monthly",
-            "dayOfMonth": 1,
-            "message": "Prefer Apple Pay over the physical card when possible to earn higher Daily Cash."
-          }
-        },
-        {
-          "id": "apple_no_annual_fee",
-          "name": "No Annual Fee",
-          "description": "No annual fee.",
-          "category": "Other",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 30,
-            "message": "Apple Card has no annual fee—review if the card still fits your spending needs this year."
-          }
-        },
-        {
-          "id": "apple_no_foreign_transaction_fees",
-          "name": "No Foreign Transaction Fees",
-          "description": "No foreign transaction fees on eligible purchases (terms apply).",
-          "category": "Travel",
-          "value": {
-            "amount": 0,
-            "currency": "USD",
-            "type": "discount"
-          },
-          "reminder": {
-            "type": "annual",
-            "startDate": "card_anniversary",
-            "daysBefore": 30,
-            "message": "Traveling soon? Remember Apple Card typically has no foreign transaction fees."
-          }
-        }
-      ]
+      "defaultBenefits": []
     }
   ]
 }

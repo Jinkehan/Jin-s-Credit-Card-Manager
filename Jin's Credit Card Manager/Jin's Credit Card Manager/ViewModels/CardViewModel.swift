@@ -230,60 +230,97 @@ class CardViewModel {
         let calendar = Calendar.current
         let today = Date()
         
+        // Helper function to get the last day of a given month and year
+        func lastDayOfMonth(year: Int, month: Int) -> Date? {
+            guard let firstDayOfMonth = calendar.date(from: DateComponents(year: year, month: month, day: 1)),
+                  let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth),
+                  let lastDay = calendar.date(byAdding: .day, value: -1, to: firstDayOfNextMonth) else {
+                return nil
+            }
+            return lastDay
+        }
+        
         switch benefit.reminderType {
         case "monthly":
-            // For monthly benefits, calculate next occurrence based on reminderDay
-            guard let reminderDay = benefit.reminderDay else { return nil }
-            
+            // For monthly benefits, expiration is the last day of the month
             let currentMonth = calendar.component(.month, from: today)
             let currentYear = calendar.component(.year, from: today)
             
-            var expirationDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: reminderDay))!
-            
-            // If the date has passed this month, move to next month
-            if expirationDate < today {
-                expirationDate = calendar.date(byAdding: .month, value: 1, to: expirationDate)!
+            // Get the first day of the current month
+            guard let firstDayOfMonth = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1)) else {
+                return nil
             }
             
-            return expirationDate
+            // Get the last day of the current month by going to the first day of next month and subtracting 1 day
+            guard let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth),
+                  let lastDayOfCurrentMonth = calendar.date(byAdding: .day, value: -1, to: firstDayOfNextMonth) else {
+                return nil
+            }
+            
+            // If the last day of current month has passed, get the last day of next month
+            if lastDayOfCurrentMonth < today {
+                guard let firstDayOfNextMonth2 = calendar.date(byAdding: .month, value: 1, to: firstDayOfNextMonth),
+                      let lastDayOfNextMonth = calendar.date(byAdding: .day, value: -1, to: firstDayOfNextMonth2) else {
+                    return nil
+                }
+                return lastDayOfNextMonth
+            }
+            
+            return lastDayOfCurrentMonth
             
         case "annual":
-            // For annual benefits, use card anniversary date
+            // For annual benefits, expiration is the last day of the anniversary month
             guard let anniversaryDate = benefit.cardAnniversaryDate ?? card.cardAnniversaryDate else { return nil }
             
             let currentYear = calendar.component(.year, from: today)
             let anniversaryMonth = calendar.component(.month, from: anniversaryDate)
-            let anniversaryDay = calendar.component(.day, from: anniversaryDate)
             
-            var expirationDate = calendar.date(from: DateComponents(year: currentYear, month: anniversaryMonth, day: anniversaryDay))!
+            // Get the last day of the anniversary month this year
+            guard let expirationDate = lastDayOfMonth(year: currentYear, month: anniversaryMonth) else {
+                return nil
+            }
             
-            // If the date has passed this year, move to next year
+            // If the date has passed this year, get the last day of next year's anniversary month
             if expirationDate < today {
-                expirationDate = calendar.date(byAdding: .year, value: 1, to: expirationDate)!
+                return lastDayOfMonth(year: currentYear + 1, month: anniversaryMonth)
             }
             
             return expirationDate
             
         case "quarterly":
-            // For quarterly benefits, calculate based on card anniversary
+            // For quarterly benefits, expiration is the last day of each quarter month
             guard let anniversaryDate = benefit.cardAnniversaryDate ?? card.cardAnniversaryDate else { return nil }
             
-            let anniversaryMonth = calendar.component(.month, from: anniversaryDate)
-            let anniversaryDay = calendar.component(.day, from: anniversaryDate)
             let currentYear = calendar.component(.year, from: today)
             
-            // Calculate all quarterly dates for current year
-            let quarterMonths = [anniversaryMonth, (anniversaryMonth + 3) % 12, (anniversaryMonth + 6) % 12, (anniversaryMonth + 9) % 12]
-            
-            for month in quarterMonths {
-                if let date = calendar.date(from: DateComponents(year: currentYear, month: month == 0 ? 12 : month, day: anniversaryDay)),
-                   date >= today {
-                    return date
+            // Calculate each quarter by adding 0, 3, 6, 9 months to anniversary date
+            // Then get the last day of that month
+            for quarterOffset in [0, 3, 6, 9] {
+                guard let quarterDate = calendar.date(byAdding: .month, value: quarterOffset, to: anniversaryDate) else {
+                    continue
+                }
+                
+                let quarterYear = calendar.component(.year, from: quarterDate)
+                let quarterMonth = calendar.component(.month, from: quarterDate)
+                
+                // Only check quarters in current or future years
+                if quarterYear < currentYear {
+                    continue
+                }
+                
+                if let expirationDate = lastDayOfMonth(year: quarterYear, month: quarterMonth),
+                   expirationDate >= today {
+                    return expirationDate
                 }
             }
             
-            // If no date found this year, return first quarter of next year
-            return calendar.date(from: DateComponents(year: currentYear + 1, month: anniversaryMonth, day: anniversaryDay))
+            // If no date found, calculate first quarter of next cycle (12 months from anniversary)
+            guard let nextCycleDate = calendar.date(byAdding: .year, value: 1, to: anniversaryDate) else {
+                return nil
+            }
+            let nextCycleYear = calendar.component(.year, from: nextCycleDate)
+            let nextCycleMonth = calendar.component(.month, from: nextCycleDate)
+            return lastDayOfMonth(year: nextCycleYear, month: nextCycleMonth)
             
         case "semi_annual":
             // For semi-annual benefits
