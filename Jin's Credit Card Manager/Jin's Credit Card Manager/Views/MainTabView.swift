@@ -12,6 +12,7 @@ struct MainTabView: View {
     @State private var viewModel = CardViewModel()
     @Environment(\.modelContext) private var modelContext
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var benefitsService = CardBenefitsService.shared
     
     var body: some View {
         let unpaidCount = viewModel.getUnpaidOverdueNotificationCount()
@@ -36,6 +37,11 @@ struct MainTabView: View {
         .onAppear {
             viewModel.setModelContext(modelContext)
             
+            // Automatically fetch card benefits on app launch
+            Task {
+                await benefitsService.fetchCardBenefits()
+            }
+            
             // Schedule notifications for all existing cards when app launches
             Task {
                 // Wait a bit to ensure authorization is complete
@@ -44,6 +50,10 @@ struct MainTabView: View {
                     await NotificationManager.shared.rescheduleAllNotifications(for: viewModel.cards)
                 }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .cardBenefitsUpdated)) { _ in
+            // Sync all existing cards with updated predefined benefits
+            viewModel.syncAllPredefinedCards()
         }
         .task(id: unpaidCount) {
             // Update app badge whenever unpaid count changes

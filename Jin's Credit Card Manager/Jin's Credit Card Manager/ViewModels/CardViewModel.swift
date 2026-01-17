@@ -203,6 +203,9 @@ class CardViewModel {
         let calendar = Calendar.current
         var upcomingBenefits: [(benefit: CardBenefit, card: CreditCard, expirationDate: Date, daysUntilExpiration: Int)] = []
         
+        // Reset benefits that should be reset based on their reset period
+        resetBenefitsIfNeeded()
+        
         for card in cards {
             guard let benefits = card.benefits else { continue }
             
@@ -349,6 +352,72 @@ class CardViewModel {
             
         default:
             return nil
+        }
+    }
+    
+    // MARK: - Benefit Reset Logic
+    
+    /// Resets benefits that should be reset based on their reset period
+    private func resetBenefitsIfNeeded() {
+        guard let context = modelContext else { return }
+        let today = Date()
+        let calendar = Calendar.current
+        var needsSave = false
+        
+        for card in cards {
+            guard let benefits = card.benefits else { continue }
+            
+            for benefit in benefits {
+                guard let lastUsedDate = benefit.lastUsedDate,
+                      let resetPeriod = benefit.resetPeriod else { continue }
+                
+                var shouldReset = false
+                
+                switch resetPeriod {
+                case "monthly":
+                    // Reset if lastUsedDate is from a previous month
+                    let lastUsedMonth = calendar.component(.month, from: lastUsedDate)
+                    let lastUsedYear = calendar.component(.year, from: lastUsedDate)
+                    let currentMonth = calendar.component(.month, from: today)
+                    let currentYear = calendar.component(.year, from: today)
+                    
+                    shouldReset = (lastUsedYear < currentYear) || 
+                                 (lastUsedYear == currentYear && lastUsedMonth < currentMonth)
+                    
+                case "annual":
+                    // Reset if lastUsedDate is from a previous year
+                    let lastUsedYear = calendar.component(.year, from: lastUsedDate)
+                    let currentYear = calendar.component(.year, from: today)
+                    shouldReset = lastUsedYear < currentYear
+                    
+                case "semi_annual":
+                    // Reset if lastUsedDate is from a previous semi-annual period
+                    // Check if it's been more than 6 months
+                    if let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: today) {
+                        shouldReset = lastUsedDate < sixMonthsAgo
+                    }
+                    
+                case "quarterly":
+                    // Reset if lastUsedDate is from a previous quarter
+                    // Check if it's been more than 3 months
+                    if let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: today) {
+                        shouldReset = lastUsedDate < threeMonthsAgo
+                    }
+                    
+                default:
+                    break
+                }
+                
+                if shouldReset {
+                    benefit.lastUsedDate = nil
+                    needsSave = true
+                }
+            }
+        }
+        
+        if needsSave {
+            try? context.save()
+            loadData()
         }
     }
     
@@ -549,6 +618,38 @@ class CardViewModel {
         let usedBenefits = getUsedBenefits()
         let cardIds = Set(usedBenefits.map { $0.card.id })
         return cards.filter { cardIds.contains($0.id) }
+    }
+    
+    /// Syncs all existing cards with predefined card IDs to their updated predefined benefits
+    func syncAllPredefinedCards() {
+        guard let context = modelContext else { return }
+        
+        for card in cards {
+            guard let predefinedCardId = card.predefinedCardId,
+                  let predefinedCard = CardBenefitsService.shared.getPredefinedCard(byId: predefinedCardId) else {
+                continue
+            }
+            
+            LocalBenefitsStore.shared.syncBenefitsForPredefinedCard(
+                card: card,
+                predefinedCard: predefinedCard,
+                context: context
+            )
+        }
+        
+        // Reload data to reflect changes
+        loadData()
+        
+        // Reschedule benefit reminders for all cards
+        Task {
+            for card in cards {
+                if let benefits = card.benefits {
+                    for benefit in benefits where benefit.isActive {
+                        await NotificationManager.shared.scheduleBenefitReminders(for: benefit)
+                    }
+                }
+            }
+        }
     }
 }
 

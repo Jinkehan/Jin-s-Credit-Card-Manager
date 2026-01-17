@@ -134,10 +134,82 @@ class LocalBenefitsStore {
             }
         }
         
+        // Update existing benefits if their details changed (but preserve user modifications to custom fields)
+        // CRITICAL: Only update benefits that haven't been used (no lastUsedDate) to preserve benefits earned history
+        // Used benefits (with lastUsedDate) are NEVER modified - they remain as historical records
+        let benefitsToUpdate = existingPredefinedIds.intersection(newPredefinedIds)
+        for benefit in existingBenefits {
+            // First check: Skip if benefit has been used - preserve history completely
+            guard benefit.lastUsedDate == nil else {
+                // This benefit was used - do NOT modify it in any way to preserve history
+                continue
+            }
+            
+            guard let benefitId = benefit.benefitId,
+                  benefitsToUpdate.contains(benefitId),
+                  let predefinedBenefit = predefinedCard.defaultBenefits.first(where: { $0.id == benefitId }),
+                  benefit.isFromPredefined && !benefit.isCustom else {
+                continue
+            }
+            
+            // Update benefit details from predefined (only if it's a predefined benefit and hasn't been used)
+            benefit.name = predefinedBenefit.name
+            benefit.benefitDescription = predefinedBenefit.description
+            benefit.category = predefinedBenefit.category
+            benefit.amount = predefinedBenefit.value.amount
+            benefit.currency = predefinedBenefit.value.currency
+            benefit.benefitType = predefinedBenefit.value.type
+            benefit.resetPeriod = predefinedBenefit.usageTracking?.resetPeriod
+            
+            // Update reminder information
+            let reminder = predefinedBenefit.reminder
+            benefit.reminderType = reminder.type
+            benefit.reminderMessage = reminder.message
+            
+            // Recalculate reminder date/day based on type
+            var reminderDate: Date? = nil
+            var reminderDay: Int? = nil
+            
+            switch reminder.type {
+            case "monthly":
+                reminderDay = reminder.dayOfMonth ?? 1
+            case "annual":
+                let calendar = Calendar.current
+                var components = calendar.dateComponents([.year, .month, .day], from: cardAnniversary)
+                if let daysBefore = reminder.daysBefore {
+                    components.day = (components.day ?? 1) - daysBefore
+                }
+                reminderDate = calendar.date(from: components)
+            case "one_time":
+                if let dateString = reminder.date {
+                    let formatter = ISO8601DateFormatter()
+                    reminderDate = formatter.date(from: dateString)
+                }
+            case "quarterly":
+                reminderDay = 1
+            case "semi_annual":
+                reminderDay = 1
+            default:
+                break
+            }
+            
+            benefit.reminderDate = reminderDate
+            benefit.reminderDay = reminderDay
+        }
+        
         // Mark benefits as inactive if they're no longer in predefined (but don't delete custom ones)
+        // CRITICAL: Only deactivate unused benefits to preserve benefits earned history
+        // Used benefits (with lastUsedDate) are NEVER deactivated - they remain as historical records
         let benefitsToDeactivate = existingPredefinedIds.subtracting(newPredefinedIds)
         for benefit in existingBenefits {
-            if let benefitId = benefit.benefitId, benefitsToDeactivate.contains(benefitId) {
+            // First check: Skip if benefit has been used - preserve history completely
+            guard benefit.lastUsedDate == nil else {
+                // This benefit was used - do NOT deactivate it to preserve history
+                continue
+            }
+            
+            if let benefitId = benefit.benefitId,
+               benefitsToDeactivate.contains(benefitId) {
                 benefit.isActive = false
             }
         }

@@ -75,10 +75,11 @@ class CardBenefitsService: ObservableObject {
             return
         }
         
-        // Don't fetch too frequently (at most once per hour)
+        // Don't fetch too frequently - at most once per day (unless forceRefresh is true)
         if !forceRefresh, let lastFetch = lastFetchDate {
             let timeSinceLastFetch = Date().timeIntervalSince(lastFetch)
-            if timeSinceLastFetch < 3600 { // 1 hour
+            let minInterval: TimeInterval = 86400 // 24 hours (1 day)
+            if timeSinceLastFetch < minInterval {
                 return
             }
         }
@@ -109,10 +110,6 @@ class CardBenefitsService: ObservableObject {
             let decoder = JSONDecoder()
             let cardBenefitsResponse = try decoder.decode(CardBenefitsResponse.self, from: data)
             
-            // Check if version changed
-            let cachedVersion = UserDefaults.standard.string(forKey: cacheVersionKey)
-            let versionChanged = cachedVersion != cardBenefitsResponse.schemaVersion
-            
             self.predefinedCards = cardBenefitsResponse.predefinedCards
             self.lastFetchDate = Date()
             
@@ -121,10 +118,9 @@ class CardBenefitsService: ObservableObject {
             // Fetch card images after loading benefits
             await ImageCacheService.shared.prefetchImages(for: cardBenefitsResponse.predefinedCards)
             
-            if versionChanged {
-                // Post notification that benefits were updated
-                NotificationCenter.default.post(name: .cardBenefitsUpdated, object: nil)
-            }
+            // Post notification that benefits were updated whenever fetch succeeds
+            // This ensures existing cards get synced with updated benefits data
+            NotificationCenter.default.post(name: .cardBenefitsUpdated, object: nil)
             
         } catch {
             errorMessage = "Failed to fetch card benefits: \(error.localizedDescription)"
