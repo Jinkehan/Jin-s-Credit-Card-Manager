@@ -14,16 +14,13 @@ struct MainTabView: View {
     @StateObject private var notificationManager = NotificationManager.shared
     
     var body: some View {
+        let unpaidCount = viewModel.getUnpaidOverdueNotificationCount()
+        let benefitsExpiringCount = viewModel.getBenefitsExpiringWithin5DaysCount()
+        
         TabView {
-            ReminderTabView(viewModel: viewModel)
-                .tabItem {
-                    Label("Dues", systemImage: "calendar.badge.clock")
-                }
+            reminderTabView(unpaidCount: unpaidCount)
             
-            BenefitsTabView(viewModel: viewModel)
-                .tabItem {
-                    Label("Benefits", systemImage: "gift.fill")
-                }
+            benefitsTabView(expiringCount: benefitsExpiringCount)
             
             RewardsTabView(viewModel: viewModel)
                 .tabItem {
@@ -47,6 +44,38 @@ struct MainTabView: View {
                     await NotificationManager.shared.rescheduleAllNotifications(for: viewModel.cards)
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func reminderTabView(unpaidCount: Int) -> some View {
+        if unpaidCount > 0 {
+            ReminderTabView(viewModel: viewModel)
+                .tabItem {
+                    Label("Dues", systemImage: "calendar.badge.clock")
+                }
+                .badge(unpaidCount)
+        } else {
+            ReminderTabView(viewModel: viewModel)
+                .tabItem {
+                    Label("Dues", systemImage: "calendar.badge.clock")
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private func benefitsTabView(expiringCount: Int) -> some View {
+        if expiringCount > 0 {
+            BenefitsTabView(viewModel: viewModel)
+                .tabItem {
+                    Label("Benefits", systemImage: "gift.fill")
+                }
+                .badge(expiringCount)
+        } else {
+            BenefitsTabView(viewModel: viewModel)
+                .tabItem {
+                    Label("Benefits", systemImage: "gift.fill")
+                }
         }
     }
 }

@@ -11,24 +11,23 @@ struct ReminderTabView: View {
     @Bindable var viewModel: CardViewModel
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                HStack(spacing: 12) {
-                    Image(systemName: "calendar.badge.clock")
-                        .font(.system(size: 32))
-                        .foregroundColor(.blue)
+        let reminders = viewModel.getUpcomingReminders()
+        
+        if reminders.isEmpty {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    HStack(spacing: 12) {
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.system(size: 32))
+                            .foregroundColor(.blue)
+                        
+                        Text("Payment Dues")
+                            .font(.system(size: 34, weight: .bold))
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                     
-                    Text("Payment Dues")
-                        .font(.system(size: 34, weight: .bold))
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
-                
-                // Reminders List
-                let reminders = viewModel.getUpcomingReminders()
-                
-                if reminders.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "calendar")
                             .font(.system(size: 64))
@@ -44,22 +43,42 @@ struct ReminderTabView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.top, 80)
-                } else {
-                    VStack(spacing: 12) {
-                        ForEach(reminders, id: \.card.id) { reminder in
-                            ReminderCardView(
-                                card: reminder.card,
-                                dueDate: reminder.dueDate,
-                                daysUntilDue: reminder.daysUntilDue
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
+                }
+                .padding(.bottom, 24)
+            }
+            .background(Color(.systemGroupedBackground))
+        } else {
+            List {
+                // Header
+                HStack(spacing: 12) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.system(size: 32))
+                        .foregroundColor(.blue)
+                    
+                    Text("Payment Dues")
+                        .font(.system(size: 34, weight: .bold))
+                }
+                .padding(.vertical, 8)
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                
+                // Reminders List
+                ForEach(reminders, id: \.card.id) { reminder in
+                    ReminderCardView(
+                        card: reminder.card,
+                        dueDate: reminder.dueDate,
+                        daysUntilDue: reminder.daysUntilDue,
+                        viewModel: viewModel
+                    )
+                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
             }
-            .padding(.bottom, 24)
+            .listStyle(.plain)
+            .background(Color(.systemGroupedBackground))
         }
-        .background(Color(.systemGroupedBackground))
     }
 }
 
@@ -67,6 +86,7 @@ struct ReminderCardView: View {
     let card: CreditCard
     let dueDate: Date
     let daysUntilDue: Int
+    let viewModel: CardViewModel
     
     var body: some View {
         HStack(spacing: 12) {
@@ -115,6 +135,14 @@ struct ReminderCardView: View {
         .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button {
+                viewModel.markCardAsPaid(card, forDueDate: dueDate)
+            } label: {
+                Label("Mark as Paid", systemImage: "checkmark.circle.fill")
+            }
+            .tint(.green)
+        }
     }
     
     private func formatDate(_ date: Date) -> String {

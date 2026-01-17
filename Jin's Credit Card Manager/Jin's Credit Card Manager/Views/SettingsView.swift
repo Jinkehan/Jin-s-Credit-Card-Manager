@@ -10,6 +10,7 @@ import SwiftData
 
 struct SettingsView: View {
     @Bindable var viewModel: CardViewModel
+    @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -54,37 +55,25 @@ struct SettingsView: View {
                 Section {
                     HStack {
                         Image(systemName: "bell.badge")
-                            .foregroundColor(.gray)
+                            .foregroundColor(notificationsEnabled ? .blue : .gray)
                             .font(.title3)
                             .frame(width: 32)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Notifications")
                                 .font(.body)
-                                .foregroundColor(.secondary)
                             
-                            Text("Coming soon")
+                            Text(notificationsEnabled ? "Enabled" : "Disabled")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
-                    }
-                    .padding(.vertical, 2)
-                    
-                    HStack {
-                        Image(systemName: "paintbrush")
-                            .foregroundColor(.gray)
-                            .font(.title3)
-                            .frame(width: 32)
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Appearance")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                            
-                            Text("Coming soon")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+                        Spacer()
+                        
+                        Toggle("", isOn: $notificationsEnabled)
+                            .onChange(of: notificationsEnabled) { oldValue, newValue in
+                                handleNotificationToggleChanged(from: oldValue, to: newValue)
+                            }
                     }
                     .padding(.vertical, 2)
                 } header: {
@@ -137,6 +126,23 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+    }
+    
+    // MARK: - Notification Toggle Handler
+    
+    private func handleNotificationToggleChanged(from oldValue: Bool, to newValue: Bool) {
+        if newValue {
+            // If enabling notifications, check and request authorization if needed
+            Task {
+                let isAuthorized = await NotificationManager.shared.checkAuthorizationStatus()
+                if !isAuthorized {
+                    _ = await NotificationManager.shared.requestAuthorization()
+                }
+            }
+        } else {
+            // If disabling notifications, cancel all pending notifications
+            NotificationManager.shared.cancelAllNotifications()
         }
     }
 }

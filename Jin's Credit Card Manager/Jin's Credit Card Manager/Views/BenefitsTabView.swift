@@ -150,16 +150,14 @@ struct BenefitCardView: View {
     }
     
     private func getBadgeColor(_ days: Int) -> Color {
-        if days == 0 { return Color.red.opacity(0.15) }
-        if days <= 7 { return Color.orange.opacity(0.15) }
-        if days <= 30 { return Color.yellow.opacity(0.15) }
+        if days <= 5 { return Color.red.opacity(0.15) }
+        if days <= 15 { return Color.orange.opacity(0.15) }
         return Color.green.opacity(0.15)
     }
     
     private func getTextColor(_ days: Int) -> Color {
-        if days == 0 { return Color.red }
-        if days <= 7 { return Color.orange }
-        if days <= 30 { return Color.yellow.opacity(0.8) }
+        if days <= 5 { return Color.red }
+        if days <= 15 { return Color.orange }
         return Color.green
     }
 }

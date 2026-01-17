@@ -18,6 +18,7 @@ final class CreditCard {
     var reminderDaysAhead: Int // Days before due date to show reminder
     var predefinedCardId: String? // If user selected a predefined card from JSON
     var cardAnniversaryDate: Date? // For annual benefit calculations
+    var lastPaidDate: Date? // Last date when the card payment was marked as paid
     
     // Relationship to benefits
     @Relationship(deleteRule: .cascade) var benefits: [CardBenefit]?
@@ -29,7 +30,8 @@ final class CreditCard {
         dueDate: Int,
         reminderDaysAhead: Int = 5,
         predefinedCardId: String? = nil,
-        cardAnniversaryDate: Date? = nil
+        cardAnniversaryDate: Date? = nil,
+        lastPaidDate: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -38,6 +40,7 @@ final class CreditCard {
         self.reminderDaysAhead = reminderDaysAhead
         self.predefinedCardId = predefinedCardId
         self.cardAnniversaryDate = cardAnniversaryDate
+        self.lastPaidDate = lastPaidDate
     }
     
     var isLastDayOfMonth: Bool {

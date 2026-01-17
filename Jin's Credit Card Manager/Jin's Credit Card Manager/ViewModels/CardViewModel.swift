@@ -152,33 +152,46 @@ class CardViewModel {
             let currentMonth = calendar.component(.month, from: today)
             let currentYear = calendar.component(.year, from: today)
             
-            // Check current month's due date
+            // Start checking from current month
+            var monthOffset = 0
             var dueDate: Date
-            if card.isLastDayOfMonth {
-                // Get the last day of the current month
-                let nextMonth = calendar.date(byAdding: .month, value: 1, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
-                dueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
-            } else {
-                dueDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate))!
-            }
             
-            var daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
-            
-            // If due date has passed, check next month
-            if daysUntilDue < 0 {
+            // Find the next unpaid due date
+            while monthOffset < 12 { // Safety limit to avoid infinite loop
                 if card.isLastDayOfMonth {
-                    // Get the last day of next month
-                    let monthAfterNext = calendar.date(byAdding: .month, value: 2, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
-                    dueDate = calendar.date(byAdding: .day, value: -1, to: monthAfterNext)!
+                    // Get the last day of the target month
+                    let targetMonth = calendar.date(byAdding: .month, value: monthOffset, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
+                    let nextMonth = calendar.date(byAdding: .month, value: 1, to: targetMonth)!
+                    dueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
                 } else {
-                    dueDate = calendar.date(byAdding: .month, value: 1, to: dueDate)!
+                    let targetDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate))!
+                    dueDate = calendar.date(byAdding: .month, value: monthOffset, to: targetDate)!
                 }
-                daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
+                
+                // Check if this due date has already been paid
+                if let lastPaidDate = card.lastPaidDate {
+                    let dueDateStart = calendar.startOfDay(for: dueDate)
+                    let lastPaidDateStart = calendar.startOfDay(for: lastPaidDate)
+                    
+                    // If this due date is on or before the last paid date, skip to next month
+                    if dueDateStart <= lastPaidDateStart {
+                        monthOffset += 1
+                        continue
+                    }
+                }
+                
+                // Calculate days until due
+                let daysUntilDue = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: dueDate)).day ?? 0
+                
+                // Only show if the due date hasn't passed (or if it's today)
+                if daysUntilDue >= 0 {
+                    reminders.append((card: card, dueDate: dueDate, daysUntilDue: daysUntilDue))
+                    break
+                } else {
+                    // Due date has passed, check next month
+                    monthOffset += 1
+                }
             }
-            
-            // Always show the next due date for all cards in the Reminders tab
-            // The reminderDaysAhead setting is only used for notification scheduling
-            reminders.append((card: card, dueDate: dueDate, daysUntilDue: daysUntilDue))
         }
         
         // Sort by days until due (earliest to latest)
@@ -307,6 +320,118 @@ class CardViewModel {
         benefit.lastUsedDate = Date()
         try? context.save()
         loadData()
+    }
+    
+    func markCardAsPaid(_ card: CreditCard, forDueDate dueDate: Date) {
+        guard let context = modelContext else { return }
+        
+        // Update the last paid date to the due date that was just paid
+        card.lastPaidDate = dueDate
+        try? context.save()
+        loadData()
+    }
+    
+    /// Counts the number of unpaid card dues where the notification date has passed
+    /// The notification date is calculated as: dueDate - reminderDaysAhead
+    /// Only counts one per card (the earliest unpaid due that has passed its notification date)
+    func getUnpaidOverdueNotificationCount() -> Int {
+        let today = Date()
+        let calendar = Calendar.current
+        var count = 0
+        
+        for card in cards {
+            let currentMonth = calendar.component(.month, from: today)
+            let currentYear = calendar.component(.year, from: today)
+            
+            // Check from current month backwards to find the earliest unpaid due date
+            // We'll check up to 2 months back to catch any missed dues
+            for monthOffset in -2..<12 { // Check 2 months back and 12 months forward
+                let dueDate: Date
+                
+                if card.isLastDayOfMonth {
+                    // Get the last day of the target month
+                    guard let targetMonth = calendar.date(byAdding: .month, value: monthOffset, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!) else {
+                        continue
+                    }
+                    guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: targetMonth) else {
+                        continue
+                    }
+                    dueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
+                } else {
+                    guard let targetDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate)) else {
+                        continue
+                    }
+                    guard let calculatedDueDate = calendar.date(byAdding: .month, value: monthOffset, to: targetDate) else {
+                        continue
+                    }
+                    dueDate = calculatedDueDate
+                }
+                
+                // Check if this due date has already been paid
+                var isPaid = false
+                if let lastPaidDate = card.lastPaidDate {
+                    let dueDateStart = calendar.startOfDay(for: dueDate)
+                    let lastPaidDateStart = calendar.startOfDay(for: lastPaidDate)
+                    
+                    // If this due date is on or before the last paid date, it's been paid
+                    if dueDateStart <= lastPaidDateStart {
+                        isPaid = true
+                        continue
+                    }
+                }
+                
+                // Calculate the notification date (dueDate - reminderDaysAhead)
+                guard let notificationDate = calendar.date(byAdding: .day, value: -card.reminderDaysAhead, to: dueDate) else {
+                    continue
+                }
+                
+                let notificationDateStart = calendar.startOfDay(for: notificationDate)
+                let todayStart = calendar.startOfDay(for: today)
+                
+                // If notification date has passed and the due date hasn't been paid, count it
+                if notificationDateStart < todayStart && !isPaid {
+                    count += 1
+                    break // Only count one per card (the earliest unpaid overdue)
+                }
+                
+                // If we're checking future months and notification date hasn't passed yet, we can stop
+                // (we've already checked past months)
+                if monthOffset >= 0 && notificationDateStart >= todayStart {
+                    break
+                }
+            }
+        }
+        
+        return count
+    }
+    
+    /// Counts the number of benefits expiring within 5 days
+    /// Only counts active benefits that haven't been used
+    func getBenefitsExpiringWithin5DaysCount() -> Int {
+        let today = Date()
+        let calendar = Calendar.current
+        var count = 0
+        
+        for card in cards {
+            guard let benefits = card.benefits else { continue }
+            
+            for benefit in benefits {
+                // Only count active benefits that haven't been used
+                guard benefit.isActive && benefit.lastUsedDate == nil else { continue }
+                
+                // Calculate next expiration date based on reminder type
+                if let expirationDate = calculateNextExpirationDate(for: benefit, card: card) {
+                    let daysUntilExpiration = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: expirationDate)).day ?? 0
+                    
+                    // Count benefits expiring within 5 days (0 to 5 days inclusive)
+                    if daysUntilExpiration >= 0 && daysUntilExpiration <= 5 {
+                        count += 1
+                    }
+                }
+            }
+        }
+        
+        return count
     }
 }
 

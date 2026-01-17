@@ -115,9 +115,29 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
             content.userInfo = ["cardId": card.id]
             
             // Set up the trigger for 8 AM on the reminder date
-            var dateComponents = calendar.dateComponents([.year, .month, .day], from: reminderDate)
-            dateComponents.hour = 8
-            dateComponents.minute = 0
+            // Create the target date/time in local time first, then extract components
+            // This ensures all timezone handling is correct
+            let reminderDay = calendar.component(.day, from: reminderDate)
+            let reminderMonth = calendar.component(.month, from: reminderDate)
+            let reminderYear = calendar.component(.year, from: reminderDate)
+            
+            // Create date at 8 AM local time on the reminder date
+            var targetDateComponents = DateComponents()
+            targetDateComponents.year = reminderYear
+            targetDateComponents.month = reminderMonth
+            targetDateComponents.day = reminderDay
+            targetDateComponents.hour = 8
+            targetDateComponents.minute = 0
+            targetDateComponents.timeZone = TimeZone.current
+            
+            guard let targetDate = calendar.date(from: targetDateComponents) else {
+                continue
+            }
+            
+            // Extract all components from the target date (this ensures timezone is handled correctly)
+            var dateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: targetDate)
+            // Remove timezone from components - UNCalendarNotificationTrigger uses system timezone
+            dateComponents.timeZone = nil
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
             
@@ -295,9 +315,27 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         ]
         
         let calendar = Calendar.current
-        var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-        dateComponents.hour = 9 // 9 AM
-        dateComponents.minute = 0
+        // Create the target date/time in local time first, then extract components
+        // This ensures all timezone handling is correct
+        let reminderYear = calendar.component(.year, from: date)
+        let reminderMonth = calendar.component(.month, from: date)
+        let reminderDay = calendar.component(.day, from: date)
+        
+        // Create date at 9 AM local time on the reminder date
+        var targetDateComponents = DateComponents()
+        targetDateComponents.year = reminderYear
+        targetDateComponents.month = reminderMonth
+        targetDateComponents.day = reminderDay
+        targetDateComponents.hour = 9 // 9 AM
+        targetDateComponents.minute = 0
+        targetDateComponents.timeZone = TimeZone.current
+        
+        guard let targetDate = calendar.date(from: targetDateComponents) else { return }
+        
+        // Extract all components from the target date (this ensures timezone is handled correctly)
+        var dateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: targetDate)
+        // Remove timezone from components - UNCalendarNotificationTrigger uses system timezone
+        dateComponents.timeZone = nil
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
