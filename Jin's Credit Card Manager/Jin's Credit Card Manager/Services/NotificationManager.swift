@@ -185,6 +185,22 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         return pendingRequests.count
     }
     
+    // MARK: - App Badge Management
+    
+    /// Updates the app icon badge count
+    /// Sets to 1 if there are any unpaid dues or expiring benefits, 0 otherwise
+    func updateAppBadge(hasUnpaidDues: Bool, hasExpiringBenefits: Bool) {
+        let badgeCount = (hasUnpaidDues || hasExpiringBenefits) ? 1 : 0
+        
+        Task { @MainActor in
+            do {
+                try await UNUserNotificationCenter.current().setBadgeCount(badgeCount)
+            } catch {
+                // Silent fail if badge permission not granted
+            }
+        }
+    }
+    
     // MARK: - Benefit Reminders
     
     // Schedule notifications for a card benefit

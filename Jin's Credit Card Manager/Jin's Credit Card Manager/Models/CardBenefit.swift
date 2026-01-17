@@ -11,22 +11,22 @@ import SwiftUI
 
 @Model
 final class CardBenefit {
-    var id: String
-    var cardId: String // Links to CreditCard
+    var id: String = UUID().uuidString
+    var cardId: String = "" // Links to CreditCard
     var benefitId: String? // If from predefined card, stores the predefined benefit ID
-    var name: String
-    var benefitDescription: String
-    var category: String
+    var name: String = ""
+    var benefitDescription: String = ""
+    var category: String = "Other"
     var amount: Double?
-    var currency: String
-    var benefitType: String // "credit", "membership", "bonus", etc.
-    var reminderType: String // "monthly", "annual", "one_time", "quarterly", "semi_annual"
+    var currency: String = "USD"
+    var benefitType: String = "other" // "credit", "membership", "bonus", etc.
+    var reminderType: String = "monthly" // "monthly", "annual", "one_time", "quarterly", "semi_annual"
     var reminderDay: Int? // For monthly reminders (day of month)
     var reminderDate: Date? // For one-time reminders
-    var reminderMessage: String
-    var isFromPredefined: Bool // True if synced from predefined card
-    var isCustom: Bool // True if user created manually
-    var isActive: Bool // User can disable benefits
+    var reminderMessage: String = ""
+    var isFromPredefined: Bool = false // True if synced from predefined card
+    var isCustom: Bool = false // True if user created manually
+    var isActive: Bool = true // User can disable benefits
     var lastUsedDate: Date? // For usage tracking
     var resetPeriod: String? // "monthly", "annual", "semi_annual", etc.
     var cardAnniversaryDate: Date? // For annual benefit calculations

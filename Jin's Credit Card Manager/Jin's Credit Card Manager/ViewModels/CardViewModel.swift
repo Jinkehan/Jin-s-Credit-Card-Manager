@@ -433,5 +433,91 @@ class CardViewModel {
         
         return count
     }
+    
+    // MARK: - Benefits Earned Functions
+    
+    /// Gets all used benefits (where lastUsedDate is not nil)
+    func getUsedBenefits() -> [(benefit: CardBenefit, card: CreditCard)] {
+        var usedBenefits: [(benefit: CardBenefit, card: CreditCard)] = []
+        
+        for card in cards {
+            guard let benefits = card.benefits else { continue }
+            
+            for benefit in benefits {
+                if benefit.lastUsedDate != nil {
+                    usedBenefits.append((benefit: benefit, card: card))
+                }
+            }
+        }
+        
+        // Sort by lastUsedDate, most recent first
+        return usedBenefits.sorted { benefit1, benefit2 in
+            let date1 = benefit1.benefit.lastUsedDate ?? Date.distantPast
+            let date2 = benefit2.benefit.lastUsedDate ?? Date.distantPast
+            return date1 > date2
+        }
+    }
+    
+    /// Gets used benefits filtered by time period
+    func getUsedBenefits(timeFilter: BenefitsTimeFilter) -> [(benefit: CardBenefit, card: CreditCard)] {
+        let allUsed = getUsedBenefits()
+        let calendar = Calendar.current
+        let today = Date()
+        
+        switch timeFilter {
+        case .allTime:
+            return allUsed
+        case .currentYear:
+            let currentYear = calendar.component(.year, from: today)
+            return allUsed.filter { benefitInfo in
+                guard let lastUsedDate = benefitInfo.benefit.lastUsedDate else { return false }
+                let benefitYear = calendar.component(.year, from: lastUsedDate)
+                return benefitYear == currentYear
+            }
+        }
+    }
+    
+    /// Gets used benefits filtered by card
+    func getUsedBenefits(cardId: String?) -> [(benefit: CardBenefit, card: CreditCard)] {
+        let allUsed = getUsedBenefits()
+        
+        guard let cardId = cardId else {
+            return allUsed
+        }
+        
+        return allUsed.filter { $0.card.id == cardId }
+    }
+    
+    /// Gets used benefits with both time and card filters
+    func getUsedBenefits(timeFilter: BenefitsTimeFilter, cardId: String?) -> [(benefit: CardBenefit, card: CreditCard)] {
+        var filtered = getUsedBenefits(timeFilter: timeFilter)
+        
+        if let cardId = cardId {
+            filtered = filtered.filter { $0.card.id == cardId }
+        }
+        
+        return filtered
+    }
+    
+    /// Calculates total savings from used benefits
+    func calculateTotalSavings(from benefits: [(benefit: CardBenefit, card: CreditCard)]) -> Double {
+        return benefits.reduce(0.0) { total, benefitInfo in
+            let amount = benefitInfo.benefit.amount ?? 0.0
+            return total + amount
+        }
+    }
+    
+    /// Gets all cards that have at least one used benefit
+    func getCardsWithUsedBenefits() -> [CreditCard] {
+        let usedBenefits = getUsedBenefits()
+        let cardIds = Set(usedBenefits.map { $0.card.id })
+        return cards.filter { cardIds.contains($0.id) }
+    }
+}
+
+// MARK: - Benefits Time Filter Enum
+enum BenefitsTimeFilter: String, CaseIterable {
+    case allTime = "All Time"
+    case currentYear = "Current Year"
 }
 

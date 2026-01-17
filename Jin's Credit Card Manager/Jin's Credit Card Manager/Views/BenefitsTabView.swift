@@ -11,57 +11,126 @@ struct BenefitsTabView: View {
     @Bindable var viewModel: CardViewModel
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Header
-                HStack(spacing: 12) {
-                    Image(systemName: "gift.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.blue)
-                    
-                    Text("Card Benefits")
-                        .font(.system(size: 34, weight: .bold))
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
-                
-                // Benefits List
-                let benefits = viewModel.getUpcomingBenefits()
-                
-                if benefits.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "gift")
-                            .font(.system(size: 64))
-                            .foregroundColor(.gray.opacity(0.3))
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // Header
+                    HStack(spacing: 12) {
+                        Image(systemName: "gift.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(.blue)
                         
-                        Text("No unused benefits")
-                            .font(.system(size: 17))
-                            .foregroundColor(.gray)
-                        
-                        Text("Add credit cards with benefits to see them here")
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray.opacity(0.7))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 80)
-                } else {
-                    VStack(spacing: 12) {
-                        ForEach(benefits, id: \.benefit.id) { benefitInfo in
-                            BenefitCardView(
-                                benefit: benefitInfo.benefit,
-                                card: benefitInfo.card,
-                                expirationDate: benefitInfo.expirationDate,
-                                daysUntilExpiration: benefitInfo.daysUntilExpiration,
-                                viewModel: viewModel
-                            )
-                        }
+                        Text("Card Benefits")
+                            .font(.system(size: 34, weight: .bold))
                     }
                     .padding(.horizontal)
+                    .padding(.top, 8)
+                    
+                    // Benefits Earned Summary Section
+                    NavigationLink(destination: BenefitsEarnedDetailView(viewModel: viewModel)) {
+                        BenefitsEarnedSummaryCard(
+                            totalSavings: calculateTotalSavingsAllTime()
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal)
+                    
+                    // Benefits List
+                    let benefits = viewModel.getUpcomingBenefits()
+                    
+                    if benefits.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "gift")
+                                .font(.system(size: 64))
+                                .foregroundColor(.gray.opacity(0.3))
+                            
+                            Text("No unused benefits")
+                                .font(.system(size: 17))
+                                .foregroundColor(.gray)
+                            
+                            Text("Add credit cards with benefits to see them here")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray.opacity(0.7))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 80)
+                    } else {
+                        VStack(spacing: 12) {
+                            ForEach(benefits, id: \.benefit.id) { benefitInfo in
+                                BenefitCardView(
+                                    benefit: benefitInfo.benefit,
+                                    card: benefitInfo.card,
+                                    expirationDate: benefitInfo.expirationDate,
+                                    daysUntilExpiration: benefitInfo.daysUntilExpiration,
+                                    viewModel: viewModel
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
                 }
+                .padding(.bottom, 24)
             }
-            .padding(.bottom, 24)
+            .background(Color(.systemGroupedBackground))
         }
-        .background(Color(.systemGroupedBackground))
+    }
+    
+    private func calculateTotalSavingsAllTime() -> Double {
+        let usedBenefits = viewModel.getUsedBenefits()
+        return viewModel.calculateTotalSavings(from: usedBenefits)
+    }
+}
+
+// MARK: - Benefits Earned Summary Card
+struct BenefitsEarnedSummaryCard: View {
+    let totalSavings: Double
+    
+    private var formattedSavings: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        return formatter.string(from: NSNumber(value: totalSavings)) ?? "$0.00"
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(Color.green.opacity(0.15))
+                    .frame(width: 56, height: 56)
+                
+                Image(systemName: "dollarsign.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundColor(.green)
+            }
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Total Benefits Earned")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Text(formattedSavings)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text("All Time")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // Chevron
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.secondary)
+        }
+        .padding(20)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 }
 
@@ -354,6 +423,218 @@ struct InfoRow: View {
         .padding(12)
         .background(Color(.systemBackground))
         .cornerRadius(10)
+    }
+}
+
+// MARK: - Benefits Earned Detail View
+struct BenefitsEarnedDetailView: View {
+    @Bindable var viewModel: CardViewModel
+    
+    @State private var timeFilter: BenefitsTimeFilter = .allTime
+    @State private var selectedCardId: String? = nil
+    
+    private var filteredBenefits: [(benefit: CardBenefit, card: CreditCard)] {
+        viewModel.getUsedBenefits(timeFilter: timeFilter, cardId: selectedCardId)
+    }
+    
+    private var totalSavings: Double {
+        viewModel.calculateTotalSavings(from: filteredBenefits)
+    }
+    
+    private var cardsWithBenefits: [CreditCard] {
+        viewModel.getCardsWithUsedBenefits()
+    }
+    
+    private var formattedSavings: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        return formatter.string(from: NSNumber(value: totalSavings)) ?? "$0.00"
+    }
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // Total Savings Summary
+                VStack(spacing: 12) {
+                    Text("Total Savings")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
+                    
+                    Text(formattedSavings)
+                        .font(.system(size: 42, weight: .bold))
+                        .foregroundColor(.green)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+                .background(Color(.systemBackground))
+                .cornerRadius(16)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                
+                // Filters Section
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Filters")
+                        .font(.system(size: 20, weight: .semibold))
+                        .padding(.horizontal)
+                    
+                    // Time Filter
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Time Period")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                        
+                        Picker("Time Period", selection: $timeFilter) {
+                            ForEach(BenefitsTimeFilter.allCases, id: \.self) { filter in
+                                Text(filter.rawValue).tag(filter)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal)
+                    }
+                    
+                    // Card Filter
+                    if !cardsWithBenefits.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Card")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal)
+                            
+                            Menu {
+                                Button("All Cards") {
+                                    selectedCardId = nil
+                                }
+                                
+                                ForEach(cardsWithBenefits, id: \.id) { card in
+                                    Button(card.name) {
+                                        selectedCardId = card.id
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(selectedCardId == nil ? "All Cards" : cardsWithBenefits.first(where: { $0.id == selectedCardId })?.name ?? "All Cards")
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .background(Color(.systemBackground))
+                                .cornerRadius(10)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                
+                // Benefits List
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Benefits Used")
+                        .font(.system(size: 20, weight: .semibold))
+                        .padding(.horizontal)
+                    
+                    if filteredBenefits.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "gift")
+                                .font(.system(size: 64))
+                                .foregroundColor(.gray.opacity(0.3))
+                            
+                            Text("No benefits used")
+                                .font(.system(size: 17))
+                                .foregroundColor(.gray)
+                            
+                            Text("Mark benefits as used to see them here")
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray.opacity(0.7))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 60)
+                    } else {
+                        ForEach(filteredBenefits, id: \.benefit.id) { benefitInfo in
+                            UsedBenefitCardView(
+                                benefit: benefitInfo.benefit,
+                                card: benefitInfo.card
+                            )
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            .padding(.bottom, 24)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Benefits Earned")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Used Benefit Card View
+struct UsedBenefitCardView: View {
+    let benefit: CardBenefit
+    let card: CreditCard
+    
+    private var formattedDate: String {
+        guard let lastUsedDate = benefit.lastUsedDate else {
+            return "Unknown"
+        }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: lastUsedDate)
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Card image
+            CardImageView(card: card)
+            
+            // Benefit info
+            VStack(alignment: .leading, spacing: 6) {
+                Text(benefit.name)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                
+                HStack(spacing: 8) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                    
+                    Text(formattedDate)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Text(card.name)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .layoutPriority(1)
+            
+            Spacer(minLength: 8)
+            
+            // Amount
+            if let amount = benefit.amount, amount > 0 {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(benefit.formattedAmount)
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.green)
+                    
+                    Text("Saved")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .layoutPriority(2)
+            }
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
     }
 }
 

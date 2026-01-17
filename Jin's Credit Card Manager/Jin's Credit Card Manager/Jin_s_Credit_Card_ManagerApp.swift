@@ -15,12 +15,32 @@ struct JDueApp: App {
             CreditCard.self,
             CardBenefit.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        // Enable iCloud sync with CloudKit
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .automatic
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            // Fallback: If CloudKit fails (usually due to schema mismatch or corrupted CloudKit data),
+            // fall back to local-only storage. This preserves all local data but disables CloudKit sync.
+            // Users can restore CloudKit sync by deleting and reinstalling the app (which resets CloudKit),
+            // or by manually resetting their CloudKit container in iCloud settings.
+            do {
+                let fallbackConfiguration = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    cloudKitDatabase: .none  // Disable CloudKit to preserve local data
+                )
+                
+                return try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+            } catch {
+                fatalError("Could not create ModelContainer even with fallback: \(error)")
+            }
         }
     }()
 

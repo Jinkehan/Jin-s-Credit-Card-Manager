@@ -11,11 +11,11 @@ import SwiftUI
 
 @Model
 final class CreditCard {
-    var id: String
-    var name: String
-    var lastFourDigits: String
-    var dueDate: Int // Day of the month (1-31, or 0 for last day of month)
-    var reminderDaysAhead: Int // Days before due date to show reminder
+    var id: String = UUID().uuidString
+    var name: String = ""
+    var lastFourDigits: String = ""
+    var dueDate: Int = 1 // Day of the month (1-31, or 0 for last day of month)
+    var reminderDaysAhead: Int = 5 // Days before due date to show reminder
     var predefinedCardId: String? // If user selected a predefined card from JSON
     var cardAnniversaryDate: Date? // For annual benefit calculations
     var lastPaidDate: Date? // Last date when the card payment was marked as paid

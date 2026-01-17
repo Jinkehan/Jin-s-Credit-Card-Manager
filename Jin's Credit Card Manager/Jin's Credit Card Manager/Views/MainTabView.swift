@@ -45,6 +45,18 @@ struct MainTabView: View {
                 }
             }
         }
+        .task(id: unpaidCount) {
+            // Update app badge whenever unpaid count changes
+            let hasUnpaid = unpaidCount > 0
+            let hasExpiring = benefitsExpiringCount > 0
+            NotificationManager.shared.updateAppBadge(hasUnpaidDues: hasUnpaid, hasExpiringBenefits: hasExpiring)
+        }
+        .task(id: benefitsExpiringCount) {
+            // Update app badge whenever benefits expiring count changes
+            let hasUnpaid = unpaidCount > 0
+            let hasExpiring = benefitsExpiringCount > 0
+            NotificationManager.shared.updateAppBadge(hasUnpaidDues: hasUnpaid, hasExpiringBenefits: hasExpiring)
+        }
     }
     
     @ViewBuilder

@@ -103,27 +103,6 @@ struct SettingsView: View {
                 } header: {
                     Text("Card Database")
                 }
-                
-                // About Section
-                Section {
-                    VStack(alignment: .center, spacing: 8) {
-                        Text("About")
-                            .font(.callout)
-                            .bold()
-                            .foregroundColor(.secondary)
-                        
-                        Text("Never miss a credit card benefit again! J Due helps you track and maximize all your credit card perks, from annual travel credits to monthly dining bonuses. Set custom reminders for each benefit and stay on top of expiring credits before they reset.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        
-                        Text("2025 Jin Kehan")
-                            .font(.caption2)
-                            .foregroundColor(Color(uiColor: .tertiaryLabel))
-                    }
-                    .padding(.vertical, 2)
-                    .listRowBackground(Color.clear)
-                }
             }
             .navigationTitle("Settings")
         }
