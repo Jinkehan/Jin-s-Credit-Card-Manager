@@ -115,8 +115,9 @@ class CardBenefitsService: ObservableObject {
             
             saveToCache(cardBenefitsResponse)
             
-            // Fetch card images after loading benefits
-            await ImageCacheService.shared.prefetchImages(for: cardBenefitsResponse.predefinedCards)
+            // Force refetch card images after loading benefits to ensure updated pictures are downloaded
+            // This clears the cache and downloads fresh images from GitHub
+            await ImageCacheService.shared.refetchImages(for: cardBenefitsResponse.predefinedCards)
             
             // Post notification that benefits were updated whenever fetch succeeds
             // This ensures existing cards get synced with updated benefits data

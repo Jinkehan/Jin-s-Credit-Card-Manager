@@ -255,7 +255,8 @@ struct CardDetailView: View {
                 PredefinedCardImageView(
                     cardId: card.id,
                     imageUrl: card.imageUrl,
-                    imageCache: imageCache
+                    imageCache: imageCache,
+                    contentMode: .fit
                 )
                 .frame(height: 200)
                 .frame(maxWidth: .infinity)

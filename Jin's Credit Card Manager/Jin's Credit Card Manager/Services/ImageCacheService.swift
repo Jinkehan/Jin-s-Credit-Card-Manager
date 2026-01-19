@@ -16,7 +16,7 @@ class ImageCacheService: ObservableObject {
     @Published private(set) var cachedImages: [String: UIImage] = [:]
     @Published private(set) var isLoading: [String: Bool] = [:]
     
-    private let fileManager = FileManager.default
+    nonisolated(unsafe) private let fileManager = FileManager.default
     private let cacheDirectory: URL
     
     private init() {
@@ -115,6 +115,32 @@ class ImageCacheService: ObservableObject {
         }
     }
     
+    /// Force refetch images for multiple cards (ignoring cache)
+    func refetchImages(for cards: [PredefinedCard]) async {
+        await withTaskGroup(of: Void.self) { group in
+            for card in cards {
+                guard let imageUrl = card.imageUrl else { continue }
+                
+                group.addTask {
+                    // Remove from caches first
+                    _ = await MainActor.run {
+                        self.cachedImages.removeValue(forKey: card.id)
+                    }
+                    self.removeImageFromDisk(imageId: card.id)
+                    
+                    // Then fetch fresh
+                    _ = await self.fetchImage(for: card.id, from: imageUrl)
+                }
+            }
+        }
+    }
+    
+    /// Remove a specific image from cache
+    func invalidateImage(for imageId: String) {
+        cachedImages.removeValue(forKey: imageId)
+        removeImageFromDisk(imageId: imageId)
+    }
+    
     // MARK: - Private Methods
     
     private func loadCachedImages() {
@@ -156,6 +182,20 @@ class ImageCacheService: ObservableObject {
         
         do {
             try imageData.write(to: fileURL)
+        } catch {
+            // Silent fail
+        }
+    }
+    
+    nonisolated private func removeImageFromDisk(imageId: String) {
+        let fileURL = cacheDirectory.appendingPathComponent("\(imageId).jpg")
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            return
+        }
+        
+        do {
+            try fileManager.removeItem(at: fileURL)
         } catch {
             // Silent fail
         }

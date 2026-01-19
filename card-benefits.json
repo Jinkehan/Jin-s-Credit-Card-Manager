@@ -426,7 +426,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Gold.jpeg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Gold.avif",
       "defaultBenefits": [
         {
           "id": "delta_stays_credit",

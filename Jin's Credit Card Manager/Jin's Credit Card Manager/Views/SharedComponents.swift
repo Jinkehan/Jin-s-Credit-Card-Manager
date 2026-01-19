@@ -86,6 +86,7 @@ struct PredefinedCardImageView: View {
     let cardId: String
     let imageUrl: String?
     @ObservedObject var imageCache: ImageCacheService
+    var contentMode: ContentMode = .fill
     @State private var loadedImage: UIImage?
     
     var body: some View {
@@ -94,7 +95,7 @@ struct PredefinedCardImageView: View {
                 // Display cached/loaded image
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: contentMode)
             } else if imageCache.isImageLoading(cardId) {
                 // Loading indicator
                 ZStack {

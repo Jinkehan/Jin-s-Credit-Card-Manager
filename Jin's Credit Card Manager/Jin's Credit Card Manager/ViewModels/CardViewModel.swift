@@ -89,8 +89,13 @@ class CardViewModel {
         try? context.save()
         loadData()
         
-        // If predefined card changed, update benefits
+        // If predefined card changed, update benefits and clear image cache
         if oldPredefinedCardId != predefinedCardId {
+            // Clear the cached image for this card so the new card image will be fetched
+            Task { @MainActor in
+                ImageCacheService.shared.invalidateImage(for: card.id)
+            }
+            
             if let predefinedCardId = predefinedCardId,
                let predefinedCard = CardBenefitsService.shared.getPredefinedCard(byId: predefinedCardId) {
                 LocalBenefitsStore.shared.createBenefitsFromPredefined(
