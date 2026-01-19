@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.1",
-  "lastUpdated": "2026-01-17T19:48:24Z",
+  "lastUpdated": "2026-01-18T00:00:00Z",
   "predefinedCards": [
     {
       "id": "hello-",
@@ -18,7 +18,285 @@
       "cardNetwork": "Amex",
       "category": "premium_travel",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.jpeg",
-      "defaultBenefits": []
+      "defaultBenefits": [
+        {
+          "id": "amex_platinum_hotel_credit",
+          "name": "Hotel Credit",
+          "description": "Get up to $300 back in statement credits semi-annually for up to a total of $600 per year on prepaid Fine Hotels + Resorts® or The Hotel Collection bookings through American Express Travel. Bookings with Fine Hotels + Resorts® and The Hotel Collection each come with complimentary benefits, such as a room upgrade at check-in (when available), and a complimentary credit valued at $100 to use towards eligible charges, such as food and beverage, spa, or other on-property charges (which varies by property). Plus, get guaranteed 4 PM checkout, complimentary breakfast on Fine Hotels + Resorts bookings through Amex Travel. Note: The Hotel Collection requires a minimum two-night stay. Certain room categories are not eligible for upgrade.",
+          "category": "Travel",
+          "value": {
+            "amount": 300,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "semi_annual"
+          },
+          "reminder": {
+            "type": "semi_annual",
+            "periods": [
+              {
+                "startMonth": 1,
+                "endMonth": 6
+              },
+              {
+                "startMonth": 7,
+                "endMonth": 12
+              }
+            ],
+            "dayOfMonth": 1,
+            "message": "Use your $300 Hotel Credit for this half of the year on Fine Hotels + Resorts or The Hotel Collection bookings through Amex Travel before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "semi_annual"
+          }
+        },
+        {
+          "id": "amex_platinum_uber_cash",
+          "name": "Uber Cash",
+          "description": "Add your Platinum Card® to your Uber account to start receiving $15 in Uber Cash each month, plus a bonus $20 in December, to use on rides and orders in the U.S. when you select an Amex Card for your transaction.",
+          "category": "Transportation",
+          "value": {
+            "amount": 15,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly",
+            "specialMonths": {
+              "12": 20
+            }
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $15 Uber Cash credit this month before it expires! ($20 in December)"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "amex_platinum_uber_one_credit",
+          "name": "Uber One Credit",
+          "description": "As a Platinum Card® Member, you can get up to $120 in statement credits each calendar year after you purchase an auto-renewing Uber One membership with your Card. Terms apply.",
+          "category": "Transportation",
+          "value": {
+            "amount": 120,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $120 Uber One credit before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "amex_platinum_airline_fee_credit",
+          "name": "Airline Fee Credit",
+          "description": "Select one qualifying airline and then receive up to $200 in statement credits per calendar year when incidental fees, such as checked bags, in-flight refreshments, flight-change fees, overweight / oversize baggage fees, airport lounge day-passes, pet-kennel fees, and phone reservation fees, are charged by the airline to your Platinum Card® account. Note: American Express relies on airlines to submit the correct information on airline transactions to identify incidental fee purchases. If you do not see a credit for a qualifying incidental purchase on your eligible Card after 8 weeks, simply call the number on the back of your Card. Qualifying airlines are subject to change. See terms & conditions for more details.",
+          "category": "Travel",
+          "value": {
+            "amount": 200,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $200 Airline Fee Credit before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "amex_platinum_clear_plus_credit",
+          "name": "CLEAR Plus Credit",
+          "description": "You can receive up to $209 in statement credits per calendar year after you sign up and pay for a CLEAR Plus Membership (subject to auto-renewal) with your eligible American Express Card.",
+          "category": "Travel",
+          "value": {
+            "amount": 209,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $209 CLEAR Plus Credit before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "amex_platinum_resy_credit",
+          "name": "Resy Credit",
+          "description": "Get up to $100 in statement credits each quarter when you use the Platinum Card® to make eligible purchases with Resy, including dining purchases at over 10,000 U.S. Resy restaurants. Enrollment required.",
+          "category": "Dining",
+          "value": {
+            "amount": 100,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "quarterly"
+          },
+          "reminder": {
+            "type": "quarterly",
+            "startMonth": 1,
+            "dayOfMonth": 1,
+            "message": "Use your $100 Resy credit this quarter before it expires at the end of the quarter!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "quarterly"
+          }
+        },
+        {
+          "id": "amex_platinum_digital_entertainment_credit",
+          "name": "Digital Entertainment Credit",
+          "description": "Treat yourself and discover new shows, news and recipes with Disney+, a Disney+ bundle, ESPN+, Hulu, The New York Times, Paramount+, Peacock, The Wall Street Journal, YouTube Premium, and YouTube TV. Get up to $25 in statement credits each month when you make eligible purchases directly from one or more of our participating partners with your Platinum Card®. Plus, Platinum Card Members will get exclusive access to special perks from time to time. Enrollment required.",
+          "category": "Other",
+          "value": {
+            "amount": 25,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $25 Digital Entertainment credit this month on Disney+, Hulu, ESPN+, NYT, Paramount+, Peacock, WSJ, YouTube Premium, or YouTube TV before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "amex_platinum_lululemon_credit",
+          "name": "lululemon Credit",
+          "description": "You can receive up to $75 in statement credits each quarter when you use the Card for eligible purchases at U.S. lululemon retail stores (excluding outlets) and lululemon.com. Enrollment required.",
+          "category": "Shopping",
+          "value": {
+            "amount": 75,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "quarterly"
+          },
+          "reminder": {
+            "type": "quarterly",
+            "startMonth": 1,
+            "dayOfMonth": 1,
+            "message": "Use your $75 lululemon credit this quarter at U.S. lululemon retail stores or lululemon.com before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "quarterly"
+          }
+        },
+        {
+          "id": "amex_platinum_walmart_plus_credit",
+          "name": "Walmart+ Credit",
+          "description": "Get up to a $12.95 statement credit back each month after you pay for a monthly Walmart+ membership (subject to auto-renewal) with your Platinum Card®. Up to $12.95 plus applicable taxes on one membership fee.",
+          "category": "Shopping",
+          "value": {
+            "amount": 155,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $155 Walmart+ Credit before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "amex_platinum_saks_credit",
+          "name": "Saks Credit",
+          "description": "Get up to $100 in statement credits annually for purchases at Saks Fifth Avenue or saks.com on your Platinum Card®. That's up to $50 in statement credits from January through June and up to $50 in statement credits from July through December. No minimum purchase required. Enrollment required.",
+          "category": "Shopping",
+          "value": {
+            "amount": 50,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "semi_annual"
+          },
+          "reminder": {
+            "type": "semi_annual",
+            "periods": [
+              {
+                "startMonth": 1,
+                "endMonth": 6
+              },
+              {
+                "startMonth": 7,
+                "endMonth": 12
+              }
+            ],
+            "dayOfMonth": 1,
+            "message": "Use your $50 Saks credit for this half of the year at Saks Fifth Avenue or saks.com before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "semi_annual"
+          }
+        },
+        {
+          "id": "amex_platinum_oura_ring_credit",
+          "name": "Oura Ring Credit",
+          "description": "Oura Ring can help you meet your health goals. You can receive up to $200 in statements credits when you use the Platinum Card® to purchase an Oura Ring at Ouraring.com each calendar year. Enrollment required.",
+          "category": "Other",
+          "value": {
+            "amount": 200,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $200 Oura Ring credit at Ouraring.com before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "amex_platinum_equinox_credit",
+          "name": "Equinox Credit",
+          "description": "Get up to $300 in statement credits each year at Equinox. Simply use your Platinum Card® to pay for an Equinox+ digital subscription, or an Equinox club membership subject to auto-renewal. Enrollment required.",
+          "category": "Other",
+          "value": {
+            "amount": 300,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $300 Equinox credit for an Equinox+ digital subscription or club membership before it expires at the end of the calendar year (December 31)!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        }
+      ]
     },
     {
       "id": "chase_freedom_flex",
