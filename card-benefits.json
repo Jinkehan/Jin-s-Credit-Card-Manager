@@ -13,11 +13,11 @@
     },
     {
       "id": "amex_platinum",
-      "name": "American Express Platinum",
+      "name": "Platinum Card®",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.jpeg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.avif",
       "defaultBenefits": [
         {
           "id": "amex_platinum_hotel_credit",
@@ -318,7 +318,7 @@
     },
     {
       "id": "amex_gold",
-      "name": "American Express Gold Card",
+      "name": "American Express® Gold Card",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "rewards",
@@ -422,11 +422,11 @@
     },
     {
       "id": "amex_delta_gold",
-      "name": "Delta SkyMiles Gold American Express Card",
+      "name": "Delta SkyMiles® Gold American Express Card",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_DeltaGold.jpeg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Gold.jpeg",
       "defaultBenefits": [
         {
           "id": "delta_stays_credit",
@@ -516,7 +516,7 @@
     },
     {
       "id": "marriott_bonvoy_bevy_amex",
-      "name": "Marriott Bonvoy Bevy American Express Card",
+      "name": "Marriott Bonvoy Bevy® American Express® Card",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
@@ -630,7 +630,7 @@
     },
     {
       "id": "amex_blue_cash_preferred",
-      "name": "Blue Cash Preferred Card",
+      "name": "Blue Cash Preferred® Card",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "cashback",
@@ -661,7 +661,7 @@
     },
     {
       "id": "amex_green",
-      "name": "American Express Green Card",
+      "name": "American Express Green Card®",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
@@ -692,7 +692,7 @@
     },
     {
       "id": "delta_skymiles_reserve_amex",
-      "name": "Delta SkyMiles Reserve American Express Card",
+      "name": "Delta SkyMiles® Reserve American Express Card",
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
