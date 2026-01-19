@@ -1,0 +1,16 @@
+1. Start context:
+First read through CARD_BENEFITS_GUIDE.md and card-benefits.json to understand 
+the logic of preset credit cards
+
+2. Adding new card:
+Help me add a new card to card-benefits.json file.
+Card official name: 
+image is in the Card_pictures folder with file name
+(double check the directory to ensure the correct file 
+is there): 
+Include the following default benefits:
+*
+
+
+3. Benefits promt
+ 

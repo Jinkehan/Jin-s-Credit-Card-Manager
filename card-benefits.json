@@ -3,7 +3,7 @@
   "lastUpdated": "2026-01-18T00:00:00Z",
   "predefinedCards": [
     {
-      "id": "hello-",
+      "id": "chase_sapphire_reserve",
       "name": "Chase Sapphire Reserve",
       "issuer": "Chase",
       "cardNetwork": "Visa",
@@ -512,6 +512,467 @@
       "cardNetwork": "Mastercard",
       "category": "cashback",
       "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Apple.png",
+      "defaultBenefits": []
+    },
+    {
+      "id": "marriott_bonvoy_bevy_amex",
+      "name": "Marriott Bonvoy Bevy American Express Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Bevy.webp",
+      "defaultBenefits": []
+    },
+    {
+      "id": "hilton_honors_aspire_amex",
+      "name": "Hilton Honors American Express Aspire Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "premium_travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Aspire.avif",
+      "defaultBenefits": [
+        {
+          "id": "hilton_aspire_resort_credit",
+          "name": "Hilton Resort Credit",
+          "description": "Get up to $200 in statement credits semi-annually for eligible purchases made directly with participating Hilton Resorts on your Hilton Honors Aspire Card. That's up to $400 back annually. No minimum purchase required.",
+          "category": "Travel",
+          "value": {
+            "amount": 200,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "semi_annual"
+          },
+          "reminder": {
+            "type": "semi_annual",
+            "periods": [
+              {
+                "startMonth": 1,
+                "endMonth": 6
+              },
+              {
+                "startMonth": 7,
+                "endMonth": 12
+              }
+            ],
+            "dayOfMonth": 1,
+            "message": "Use your $200 Hilton Resort Credit for this half of the year at participating Hilton Resorts before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "semi_annual"
+          }
+        },
+        {
+          "id": "hilton_aspire_free_night_reward",
+          "name": "Free Night Reward",
+          "description": "Earn a Free Night Reward from Hilton after you spend $30,000 in purchases on your Card in a calendar year. You can earn an additional Free Night Reward after you spend an additional $30,000 on eligible purchases (for a total $60,000) on the Card within the same calendar year.",
+          "category": "Travel",
+          "value": {
+            "amount": 600,
+            "currency": "USD",
+            "type": "other"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Check your year-to-date spending toward a Hilton Free Night Reward ($30k, and again at $60k) before the year ends."
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "hilton_aspire_flight_credit",
+          "name": "Flight Credit",
+          "description": "Get up to $50 in statement credits each quarter, for a total of up to $200 back each year, on flight purchases made directly with an airline or through AmexTravel.com using your Hilton Honors American Express Aspire Card.",
+          "category": "Travel",
+          "value": {
+            "amount": 50,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "quarterly"
+          },
+          "reminder": {
+            "type": "quarterly",
+            "startMonth": 1,
+            "dayOfMonth": 1,
+            "message": "Use your $50 Flight Credit this quarter (airline direct or AmexTravel.com) before it expires at quarter end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "quarterly"
+          }
+        },
+        {
+          "id": "hilton_aspire_clear_plus_credit",
+          "name": "CLEAR Plus Credit",
+          "description": "CLEAR® Plus helps get you to your gate faster by using unique facial attributes to verify you are you at 50+ airports nationwide. Use the dedicated CLEAR Lane to confirm your identity without taking out your passport or ID. Receive up to $209 in statement credits per calendar year after you pay for your CLEAR Plus Membership (subject to auto-renewal) with the Hilton Honors American Express Aspire Card.",
+          "category": "Travel",
+          "value": {
+            "amount": 209,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $209 CLEAR Plus Credit before it resets!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        }
+      ]
+    },
+    {
+      "id": "amex_blue_cash_preferred",
+      "name": "Blue Cash Preferred Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "cashback",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashPreferred.jpg",
+      "defaultBenefits": [
+        {
+          "id": "amex_bcp_disney_streaming_credit",
+          "name": "Disney Streaming Credit",
+          "description": "Now, with the enhanced $120 Disney Streaming Credit, you can earn up to $10 back per month as a statement credit when you use your enrolled Blue Cash Preferred® Card to purchase a subscription, or bundle subscription, on DisneyPlus.com, Hulu.com, or Plus.espn.com U.S. websites, now with no minimum purchase requirement. Subscription is subject to auto-renewal.",
+          "category": "Other",
+          "value": {
+            "amount": 10,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $10 Disney Streaming Credit this month (Disney+, Hulu, ESPN+) before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        }
+      ]
+    },
+    {
+      "id": "amex_green",
+      "name": "American Express Green Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Green.avif",
+      "defaultBenefits": [
+        {
+          "id": "amex_green_clear_plus_credit",
+          "name": "CLEAR Plus Credit",
+          "description": "CLEAR® Plus helps get you to your gate faster by using unique facial attributes to verify you are you at 50+ airports nationwide. You can cover the cost of a CLEAR Plus Membership with up to $209 in statement credits per calendar year after you pay for CLEAR Plus with your American Express Green Card®. Excluding any applicable taxes and fees. Subject to auto-renewal.",
+          "category": "Travel",
+          "value": {
+            "amount": 209,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $209 CLEAR Plus Credit before it resets!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        }
+      ]
+    },
+    {
+      "id": "delta_skymiles_reserve_amex",
+      "name": "Delta SkyMiles Reserve American Express Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "premium_travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Reserve.avif",
+      "defaultBenefits": [
+        {
+          "id": "delta_reserve_resy_credit",
+          "name": "Resy Credit",
+          "description": "With your enrolled Delta SkyMiles® Reserve American Express Card you can earn up to $20 per month in statement credits on eligible purchases with U.S. Resy restaurants. Create a Resy account on Resy.com or on the Resy app to book a reservation.",
+          "category": "Dining",
+          "value": {
+            "amount": 20,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $20 Resy credit this month at U.S. Resy restaurants before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "delta_reserve_delta_stays_credit",
+          "name": "Delta Stays Credit",
+          "description": "Elevate your travel experience with an annual statement credit of up to $200 after using your Delta SkyMiles® Reserve American Express Card to book prepaid hotels or vacation rentals through Delta Stays on delta.com.",
+          "category": "Travel",
+          "value": {
+            "amount": 200,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $200 Delta Stays credit before it resets!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "delta_reserve_rideshare_credit",
+          "name": "Rideshare Credit",
+          "description": "Get rewarded to and from the airport. Earn up to $10 in statement credits each month after using your Delta SkyMiles Reserve American Express Card on U.S. rideshare purchases with select providers. That's up to $120 back each year. Enrollment required.",
+          "category": "Transportation",
+          "value": {
+            "amount": 10,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $10 Rideshare Credit this month on eligible U.S. rideshare purchases before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        }
+      ]
+    },
+    {
+      "id": "delta_skymiles_platinum_amex",
+      "name": "Delta SkyMiles® Platinum American Express Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Platinum.avif",
+      "defaultBenefits": [
+        {
+          "id": "delta_platinum_rideshare_credit",
+          "name": "Rideshare Credit",
+          "description": "With your $120 Rideshare Credit, earn up to $10 back in statement credits each month after you use your Delta SkyMiles® Platinum American Express Card to pay for U.S. rideshare purchases with select providers. Enrollment Required.",
+          "category": "Transportation",
+          "value": {
+            "amount": 10,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $10 Rideshare Credit this month on eligible U.S. rideshare purchases before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "delta_platinum_delta_stays_credit",
+          "name": "Delta Stays Credit",
+          "description": "Elevate your travel experience with an annual statement credit of up to $150 after using your Delta SkyMiles® Platinum American Express Card to book prepaid hotels or vacation rentals through Delta Stays on delta.com.",
+          "category": "Travel",
+          "value": {
+            "amount": 150,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Don't forget to use your $150 Delta Stays credit before it resets!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "delta_platinum_companion_certificate",
+          "name": "Companion Certificate",
+          "description": "Enjoy a Companion Certificate on a Delta Main round-trip flight within the U.S. and to Mexico, the Caribbean, or Central America each year after renewal of your Card. The Companion Certificate requires payment of government-imposed taxes and fees of between $22 and $250 (for itineraries with up to four flight segments). Baggage charges and other restrictions apply. Delta Basic experiences are not eligible for this benefit.",
+          "category": "Travel",
+          "value": {
+            "amount": 300,
+            "currency": "USD",
+            "type": "other"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Remember to use your annual Companion Certificate (estimated value ~$300) before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        },
+        {
+          "id": "delta_platinum_resy_credit",
+          "name": "Resy Credit",
+          "description": "Discover and book restaurants to love with Resy. Get up to $10 in statement credits each month after you pay with your enrolled Delta Platinum Card to dine at U.S. Resy restaurants or make other eligible Resy purchases. That's up to $120 in statement credits annually.",
+          "category": "Dining",
+          "value": {
+            "amount": 10,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $10 Resy credit this month at U.S. Resy restaurants before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "delta_platinum_global_entry_tsa_precheck_credit",
+          "name": "Global Entry / TSA PreCheck Credit",
+          "description": "Keep long airport lines from slowing you down. Receive either a $120 statement credit for Global Entry or a statement credit for up to $85 for TSA PreCheck® (through a TSA PreCheck official enrollment provider) for a 5-year plan. TSA PreCheck can expedite security screening and Global Entry can reduce wait time at US Customs at select airports. And if you are approved for Global Entry you will also receive access to TSA PreCheck at no additional charge. Only one credit will be given in a 4 year period for Global Entry or in a 4.5 year period for TSA PreCheck for whichever application fee is charged to your Card first. To read the full terms and conditions, visit www.americanexpress.com/expeditedtravel.",
+          "category": "Travel",
+          "value": {
+            "amount": 25,
+            "currency": "USD",
+            "type": "credit"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "If you're eligible again, use your Global Entry / TSA PreCheck credit when renewing your membership."
+          }
+        }
+      ]
+    },
+    {
+      "id": "amex_blue_cash_everyday",
+      "name": "Blue Cash Everyday® Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "cashback",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashEveryday.png",
+      "defaultBenefits": [
+        {
+          "id": "amex_bce_disney_streaming_credit",
+          "name": "Disney Streaming Credit",
+          "description": "Get up to a $7 monthly statement credit after using your enrolled Blue Cash Everyday® Card for a subscription purchase, including a bundle subscription purchase, at Disneyplus.com, Hulu.com, or Plus.espn.com U.S. websites. Subject to auto-renewal.",
+          "category": "Other",
+          "value": {
+            "amount": 7,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $7 Disney Streaming Credit this month (Disney+, Hulu, ESPN+) before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        }
+      ]
+    },
+    {
+      "id": "marriott_bonvoy_brilliant_amex",
+      "name": "Marriott Bonvoy Brilliant® American Express® Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "premium_travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Brilliant.webp",
+      "defaultBenefits": [
+        {
+          "id": "marriott_brilliant_dining_credit",
+          "name": "Brilliant Dining Credit",
+          "description": "Each calendar year, get up to $300 (up to $25 per month) in statement credits for eligible purchases made on the Marriott Bonvoy Brilliant® Card at restaurants worldwide.",
+          "category": "Dining",
+          "value": {
+            "amount": 25,
+            "currency": "USD",
+            "type": "credit",
+            "frequency": "monthly"
+          },
+          "reminder": {
+            "type": "monthly",
+            "dayOfMonth": 1,
+            "message": "Use your $25 Brilliant Dining Credit this month at restaurants worldwide before it expires at month end!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "monthly"
+          }
+        },
+        {
+          "id": "marriott_brilliant_free_night_award",
+          "name": "Free Night Award",
+          "description": "Receive 1 Free Night Award every year after your Card renewal month. Award can be used for one night (redemption level at or under 85,000 Marriott Bonvoy® points) at hotels participating in Marriott Bonvoy®. Certain hotels have resort fees.",
+          "category": "Travel",
+          "value": {
+            "amount": 500,
+            "currency": "USD",
+            "type": "other"
+          },
+          "reminder": {
+            "type": "annual",
+            "startDate": "card_anniversary",
+            "daysBefore": 30,
+            "message": "Use your annual Free Night Award (estimated value ~$500) after your renewal month before it expires!"
+          },
+          "usageTracking": {
+            "enabled": true,
+            "resetPeriod": "annual"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hilton_honors_amex",
+      "name": "Hilton Honors American Express Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Honors.avif",
+      "defaultBenefits": []
+    },
+    {
+      "id": "delta_skymiles_blue_amex",
+      "name": "Delta SkyMiles® Blue American Express Card",
+      "issuer": "American Express",
+      "cardNetwork": "Amex",
+      "category": "travel",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Blue.jpg",
       "defaultBenefits": []
     }
   ]
