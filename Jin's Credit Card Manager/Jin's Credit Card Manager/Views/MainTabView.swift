@@ -37,6 +37,18 @@ struct MainTabView: View {
         .onAppear {
             viewModel.setModelContext(modelContext)
             
+            // Trigger iCloud sync check on app launch to ensure data is fetched from CloudKit
+            Task {
+                // Check CloudKit status first to trigger sync
+                await CloudKitStatusService.shared.checkAccountStatus()
+                
+                // Wait a moment for CloudKit to sync data from iCloud
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+                
+                // Reload data after CloudKit sync
+                viewModel.loadData()
+            }
+            
             // Automatically fetch card benefits on app launch
             Task {
                 await benefitsService.fetchCardBenefits()

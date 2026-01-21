@@ -8,7 +8,7 @@
       "issuer": "Chase",
       "cardNetwork": "Visa",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphirereserve.jpg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_Sapphirereserve.jpeg",
       "defaultBenefits": []
     },
     {
@@ -17,7 +17,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Platinum.jpg",
       "defaultBenefits": [
         {
           "id": "amex_platinum_hotel_credit",
@@ -304,7 +304,7 @@
       "issuer": "Chase",
       "cardNetwork": "Mastercard",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_FreedomFlex.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Chase_FreedomFlex.jpg",
       "defaultBenefits": []
     },
     {
@@ -313,7 +313,7 @@
       "issuer": "Synchrony Bank",
       "cardNetwork": "Store",
       "category": "store",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amazon_Store.png",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amazon_Store.jpg",
       "defaultBenefits": []
     },
     {
@@ -322,7 +322,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "rewards",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Gold.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Gold.jpg",
       "defaultBenefits": [
         {
           "id": "amex_gold_dunkin_credit",
@@ -426,7 +426,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Gold.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Gold.jpg",
       "defaultBenefits": [
         {
           "id": "delta_stays_credit",
@@ -457,7 +457,7 @@
       "issuer": "Wells Fargo",
       "cardNetwork": "Mastercard",
       "category": "rewards",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Bilt.webp",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Bilt.jpeg",
       "defaultBenefits": []
     },
     {
@@ -475,7 +475,7 @@
       "issuer": "Discover",
       "cardNetwork": "Discover",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Discover.png",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Discover.jpg",
       "defaultBenefits": []
     },
     {
@@ -484,7 +484,7 @@
       "issuer": "Imprint",
       "cardNetwork": "Mastercard",
       "category": "store",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Imprint_Crate&Barrel.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Imprint_Crate&Barrel.jpg",
       "defaultBenefits": []
     },
     {
@@ -493,7 +493,7 @@
       "issuer": "Synchrony Bank",
       "cardNetwork": "PayPal",
       "category": "financing",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Paypal_Credit.jpg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Paypal_Credit.jpeg",
       "defaultBenefits": []
     },
     {
@@ -502,7 +502,7 @@
       "issuer": "Capital One",
       "cardNetwork": "Mastercard",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/REI.webp",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/REI.jpeg",
       "defaultBenefits": []
     },
     {
@@ -511,7 +511,7 @@
       "issuer": "Goldman Sachs",
       "cardNetwork": "Mastercard",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Apple.png",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Apple.jpg",
       "defaultBenefits": []
     },
     {
@@ -520,7 +520,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Bevy.webp",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Bevy.jpeg",
       "defaultBenefits": []
     },
     {
@@ -529,7 +529,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Aspire.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Aspire.jpg",
       "defaultBenefits": [
         {
           "id": "hilton_aspire_resort_credit",
@@ -634,7 +634,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashPreferred.jpg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashPreferred.jpeg",
       "defaultBenefits": [
         {
           "id": "amex_bcp_disney_streaming_credit",
@@ -665,7 +665,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Green.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Green.jpg",
       "defaultBenefits": [
         {
           "id": "amex_green_clear_plus_credit",
@@ -696,7 +696,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Reserve.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Reserve.jpg",
       "defaultBenefits": [
         {
           "id": "delta_reserve_resy_credit",
@@ -769,7 +769,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Platinum.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Platinum.jpg",
       "defaultBenefits": [
         {
           "id": "delta_platinum_rideshare_credit",
@@ -880,7 +880,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "cashback",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashEveryday.png",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_BlueCashEveryday.jpg",
       "defaultBenefits": [
         {
           "id": "amex_bce_disney_streaming_credit",
@@ -911,7 +911,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "premium_travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Brilliant.webp",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Marriott_Brilliant.jpeg",
       "defaultBenefits": [
         {
           "id": "marriott_brilliant_dining_credit",
@@ -963,7 +963,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Honors.avif",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Hilton_Honors.jpg",
       "defaultBenefits": []
     },
     {
@@ -972,7 +972,7 @@
       "issuer": "American Express",
       "cardNetwork": "Amex",
       "category": "travel",
-      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Blue.jpg",
+      "imageUrl": "https://raw.githubusercontent.com/Jinkehan/Jin-s-Credit-Card-Manager/main/Card_Pictures/Amex_Delta_Blue.jpeg",
       "defaultBenefits": []
     }
   ]
