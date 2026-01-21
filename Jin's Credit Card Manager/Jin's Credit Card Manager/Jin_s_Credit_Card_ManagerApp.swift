@@ -17,19 +17,21 @@ struct JDueApp: App {
         ])
         
         // Enable iCloud sync with CloudKit using the private database
-        // .automatic uses the default iCloud container specified in entitlements
+        // Use .automatic to automatically use the default iCloud container from entitlements
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.kehan.jin.JDue")
+            cloudKitDatabase: .automatic
         )
 
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
             print("✅ Successfully initialized ModelContainer with iCloud sync")
+            print("📦 Using container identifier: iCloud.kehan.jin.JDue")
             return container
         } catch {
             print("❌ Failed to initialize ModelContainer with CloudKit: \(error.localizedDescription)")
+            print("❌ Full error: \(error)")
             
             // Fallback: If CloudKit fails, use local-only storage
             // This can happen if:

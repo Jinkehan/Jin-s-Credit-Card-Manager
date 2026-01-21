@@ -140,6 +140,19 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 2)
                     
+                    // Debug info - show container identifier
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Container: iCloud.kehan.jin.JDue")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .monospaced()
+                        
+                        Text("Cards in memory: \(viewModel.cards.count)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 2)
+                    
                     if !cloudKitStatus.isAvailable {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("To enable iCloud sync:")
@@ -147,6 +160,17 @@ struct SettingsView: View {
                                 .fontWeight(.semibold)
                             
                             Text("1. Open Settings app\n2. Tap your name at the top\n3. Tap iCloud\n4. Enable iCloud Drive")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Troubleshooting:")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                            
+                            Text("If data isn't syncing:\n• Ensure you're signed into the same Apple ID on all devices\n• Check that iCloud Drive is enabled\n• Wait a few minutes for sync to complete\n• Try force-quitting and reopening the app")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }

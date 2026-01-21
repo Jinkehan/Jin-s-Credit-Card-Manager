@@ -48,6 +48,29 @@ class CardViewModel {
             cardAnniversaryDate: cardAnniversaryDate ?? Date()
         )
         
+        // Check if the due date for the current month is in the past
+        // If so, mark it as already paid so the badge and display are consistent
+        let calendar = Calendar.current
+        let today = Date()
+        let currentMonth = calendar.component(.month, from: today)
+        let currentYear = calendar.component(.year, from: today)
+        
+        let currentMonthDueDate: Date
+        if dueDate == 0 {
+            // Last day of month
+            let nextMonth = calendar.date(byAdding: .month, value: 1, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
+            currentMonthDueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
+        } else {
+            currentMonthDueDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: dueDate))!
+        }
+        
+        // If the current month's due date is in the past, mark it as paid
+        let todayStart = calendar.startOfDay(for: today)
+        let dueDateStart = calendar.startOfDay(for: currentMonthDueDate)
+        if dueDateStart < todayStart {
+            newCard.lastPaidDate = currentMonthDueDate
+        }
+        
         context.insert(newCard)
         try? context.save()
         loadData()
@@ -79,12 +102,38 @@ class CardViewModel {
         guard let context = modelContext else { return }
         
         let oldPredefinedCardId = card.predefinedCardId
+        let oldDueDate = card.dueDate
         
         card.name = name
         card.lastFourDigits = lastFourDigits
         card.dueDate = dueDate
         card.reminderDaysAhead = reminderDaysAhead
         card.predefinedCardId = predefinedCardId
+        
+        // If the due date changed, check if the current month's due date is in the past
+        // If so, mark it as already paid so the badge and display are consistent
+        if oldDueDate != dueDate {
+            let calendar = Calendar.current
+            let today = Date()
+            let currentMonth = calendar.component(.month, from: today)
+            let currentYear = calendar.component(.year, from: today)
+            
+            let currentMonthDueDate: Date
+            if dueDate == 0 {
+                // Last day of month
+                let nextMonth = calendar.date(byAdding: .month, value: 1, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!)!
+                currentMonthDueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
+            } else {
+                currentMonthDueDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: dueDate))!
+            }
+            
+            // If the current month's due date is in the past, mark it as paid
+            let todayStart = calendar.startOfDay(for: today)
+            let dueDateStart = calendar.startOfDay(for: currentMonthDueDate)
+            if dueDateStart < todayStart {
+                card.lastPaidDate = currentMonthDueDate
+            }
+        }
         
         try? context.save()
         loadData()
