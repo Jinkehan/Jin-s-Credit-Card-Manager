@@ -11,6 +11,7 @@ import SwiftData
 struct SettingsView: View {
     @Bindable var viewModel: CardViewModel
     @AppStorage("notificationsEnabled") private var notificationsEnabled: Bool = true
+    @State private var cloudKitStatus = CloudKitStatusService.shared
     
     var body: some View {
         NavigationStack {
@@ -102,6 +103,60 @@ struct SettingsView: View {
                     }
                 } header: {
                     Text("Card Database")
+                }
+                
+                // iCloud Status Section (moved to bottom)
+                Section {
+                    HStack {
+                        Image(systemName: cloudKitStatus.statusIcon)
+                            .foregroundColor(cloudKitStatus.statusColor)
+                            .font(.title3)
+                            .frame(width: 32)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("iCloud Sync")
+                                .font(.body)
+                            
+                            Text(cloudKitStatus.statusMessage)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if cloudKitStatus.isCheckingStatus {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else {
+                            Button {
+                                Task {
+                                    await cloudKitStatus.checkAccountStatus()
+                                }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 2)
+                    
+                    if !cloudKitStatus.isAvailable {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("To enable iCloud sync:")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                            
+                            Text("1. Open Settings app\n2. Tap your name at the top\n3. Tap iCloud\n4. Enable iCloud Drive")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                } header: {
+                    Text("Sync")
+                } footer: {
+                    Text("When iCloud sync is enabled, your cards and reminders will automatically sync across all your devices signed in with the same Apple ID.")
+                        .font(.caption)
                 }
             }
             .navigationTitle("Settings")

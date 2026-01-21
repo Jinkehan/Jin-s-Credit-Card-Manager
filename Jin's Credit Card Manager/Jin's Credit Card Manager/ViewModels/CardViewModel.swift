@@ -237,6 +237,9 @@ class CardViewModel {
     private func calculateNextExpirationDate(for benefit: CardBenefit, card: CreditCard) -> Date? {
         let calendar = Calendar.current
         let today = Date()
+        let todayStart = calendar.startOfDay(for: today)
+        let currentYear = calendar.component(.year, from: today)
+        let currentMonth = calendar.component(.month, from: today)
         
         // Helper function to get the last day of a given month and year
         func lastDayOfMonth(year: Int, month: Int) -> Date? {
@@ -250,105 +253,89 @@ class CardViewModel {
         
         switch benefit.reminderType {
         case "monthly":
-            // For monthly benefits, expiration is the last day of the month
-            let currentMonth = calendar.component(.month, from: today)
-            let currentYear = calendar.component(.year, from: today)
-            
-            // Get the first day of the current month
-            guard let firstDayOfMonth = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1)) else {
-                return nil
-            }
-            
-            // Get the last day of the current month by going to the first day of next month and subtracting 1 day
-            guard let firstDayOfNextMonth = calendar.date(byAdding: .month, value: 1, to: firstDayOfMonth),
-                  let lastDayOfCurrentMonth = calendar.date(byAdding: .day, value: -1, to: firstDayOfNextMonth) else {
+            // For monthly benefits, expiration is the last day of the current month
+            guard let lastDayOfCurrentMonth = lastDayOfMonth(year: currentYear, month: currentMonth) else {
                 return nil
             }
             
             // If the last day of current month has passed, get the last day of next month
-            if lastDayOfCurrentMonth < today {
-                guard let firstDayOfNextMonth2 = calendar.date(byAdding: .month, value: 1, to: firstDayOfNextMonth),
-                      let lastDayOfNextMonth = calendar.date(byAdding: .day, value: -1, to: firstDayOfNextMonth2) else {
-                    return nil
-                }
-                return lastDayOfNextMonth
+            if calendar.startOfDay(for: lastDayOfCurrentMonth) < todayStart {
+                // Move to next month
+                let nextMonth = currentMonth == 12 ? 1 : currentMonth + 1
+                let nextYear = currentMonth == 12 ? currentYear + 1 : currentYear
+                return lastDayOfMonth(year: nextYear, month: nextMonth)
             }
             
             return lastDayOfCurrentMonth
             
         case "annual":
-            // For annual benefits, expiration is the last day of the anniversary month
-            guard let anniversaryDate = benefit.cardAnniversaryDate ?? card.cardAnniversaryDate else { return nil }
-            
-            let currentYear = calendar.component(.year, from: today)
-            let anniversaryMonth = calendar.component(.month, from: anniversaryDate)
-            
-            // Get the last day of the anniversary month this year
-            guard let expirationDate = lastDayOfMonth(year: currentYear, month: anniversaryMonth) else {
+            // For annual benefits, expiration is December 31 of the current year
+            guard let dec31ThisYear = calendar.date(from: DateComponents(year: currentYear, month: 12, day: 31)) else {
                 return nil
             }
             
-            // If the date has passed this year, get the last day of next year's anniversary month
-            if expirationDate < today {
-                return lastDayOfMonth(year: currentYear + 1, month: anniversaryMonth)
+            // If December 31 of this year has passed, return December 31 of next year
+            if calendar.startOfDay(for: dec31ThisYear) < todayStart {
+                return calendar.date(from: DateComponents(year: currentYear + 1, month: 12, day: 31))
             }
             
-            return expirationDate
+            return dec31ThisYear
             
         case "quarterly":
-            // For quarterly benefits, expiration is the last day of each quarter month
-            guard let anniversaryDate = benefit.cardAnniversaryDate ?? card.cardAnniversaryDate else { return nil }
+            // For quarterly benefits, expiration is the last day of the current quarter
+            // Q1: January-March (expires March 31)
+            // Q2: April-June (expires June 30)
+            // Q3: July-September (expires September 30)
+            // Q4: October-December (expires December 31)
             
-            let currentYear = calendar.component(.year, from: today)
+            let currentQuarter = (currentMonth - 1) / 3 // 0-based: 0=Q1, 1=Q2, 2=Q3, 3=Q4
+            let quarterEndMonth = (currentQuarter + 1) * 3 // Q1->3 (Mar), Q2->6 (Jun), Q3->9 (Sep), Q4->12 (Dec)
             
-            // Calculate each quarter by adding 0, 3, 6, 9 months to anniversary date
-            // Then get the last day of that month
-            for quarterOffset in [0, 3, 6, 9] {
-                guard let quarterDate = calendar.date(byAdding: .month, value: quarterOffset, to: anniversaryDate) else {
-                    continue
-                }
-                
-                let quarterYear = calendar.component(.year, from: quarterDate)
-                let quarterMonth = calendar.component(.month, from: quarterDate)
-                
-                // Only check quarters in current or future years
-                if quarterYear < currentYear {
-                    continue
-                }
-                
-                if let expirationDate = lastDayOfMonth(year: quarterYear, month: quarterMonth),
-                   expirationDate >= today {
-                    return expirationDate
-                }
-            }
-            
-            // If no date found, calculate first quarter of next cycle (12 months from anniversary)
-            guard let nextCycleDate = calendar.date(byAdding: .year, value: 1, to: anniversaryDate) else {
+            guard let lastDayOfQuarter = lastDayOfMonth(year: currentYear, month: quarterEndMonth) else {
                 return nil
             }
-            let nextCycleYear = calendar.component(.year, from: nextCycleDate)
-            let nextCycleMonth = calendar.component(.month, from: nextCycleDate)
-            return lastDayOfMonth(year: nextCycleYear, month: nextCycleMonth)
+            
+            // If the last day of current quarter has passed, get the last day of next quarter
+            if calendar.startOfDay(for: lastDayOfQuarter) < todayStart {
+                // Move to next quarter
+                let nextQuarterEndMonth = quarterEndMonth + 3
+                if nextQuarterEndMonth > 12 {
+                    // Next quarter is in next year
+                    return lastDayOfMonth(year: currentYear + 1, month: nextQuarterEndMonth - 12)
+                } else {
+                    return lastDayOfMonth(year: currentYear, month: nextQuarterEndMonth)
+                }
+            }
+            
+            return lastDayOfQuarter
             
         case "semi_annual":
-            // For semi-annual benefits
-            guard let anniversaryDate = benefit.cardAnniversaryDate ?? card.cardAnniversaryDate else { return nil }
+            // For semi-annual benefits, expiration is June 30 or December 31
+            // H1: January-June (expires June 30)
+            // H2: July-December (expires December 31)
             
-            let anniversaryMonth = calendar.component(.month, from: anniversaryDate)
-            let anniversaryDay = calendar.component(.day, from: anniversaryDate)
-            let currentYear = calendar.component(.year, from: today)
-            
-            // Calculate both semi-annual dates
-            let firstDate = calendar.date(from: DateComponents(year: currentYear, month: anniversaryMonth, day: anniversaryDay))!
-            let secondDate = calendar.date(byAdding: .month, value: 6, to: firstDate)!
-            
-            if firstDate >= today {
-                return firstDate
-            } else if secondDate >= today {
-                return secondDate
+            if currentMonth <= 6 {
+                // Currently in first half of year
+                guard let june30 = calendar.date(from: DateComponents(year: currentYear, month: 6, day: 30)) else {
+                    return nil
+                }
+                
+                if calendar.startOfDay(for: june30) >= todayStart {
+                    return june30
+                }
+                // June 30 has passed, return December 31
+                return calendar.date(from: DateComponents(year: currentYear, month: 12, day: 31))
             } else {
-                // Move to next year
-                return calendar.date(byAdding: .year, value: 1, to: firstDate)
+                // Currently in second half of year
+                guard let dec31 = calendar.date(from: DateComponents(year: currentYear, month: 12, day: 31)) else {
+                    return nil
+                }
+                
+                if calendar.startOfDay(for: dec31) >= todayStart {
+                    return dec31
+                }
+                // December 31 has passed, return June 30 of next year
+                return calendar.date(from: DateComponents(year: currentYear + 1, month: 6, day: 30))
             }
             
         case "one_time":
@@ -442,73 +429,65 @@ class CardViewModel {
         loadData()
     }
     
-    /// Counts the number of unpaid card dues where the notification date has passed
-    /// The notification date is calculated as: dueDate - reminderDaysAhead
-    /// Only counts one per card (the earliest unpaid due that has passed its notification date)
+    /// Counts the number of unpaid card dues where the reminder date has arrived
+    /// Simple logic: For each card, find next unpaid due date, calculate reminder date (due date - reminderDaysAhead)
+    /// If today >= reminder date AND card is unpaid, count it
     func getUnpaidOverdueNotificationCount() -> Int {
         let today = Date()
         let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: today)
         var count = 0
         
         for card in cards {
+            // Find the next unpaid due date for this card
             let currentMonth = calendar.component(.month, from: today)
             let currentYear = calendar.component(.year, from: today)
             
-            // Check from current month backwards to find the earliest unpaid due date
-            // We'll check up to 2 months back to catch any missed dues
-            for monthOffset in -2..<12 { // Check 2 months back and 12 months forward
+            // Check current month and up to 12 months forward
+            for monthOffset in 0..<12 {
                 let dueDate: Date
                 
                 if card.isLastDayOfMonth {
                     // Get the last day of the target month
-                    guard let targetMonth = calendar.date(byAdding: .month, value: monthOffset, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!) else {
-                        continue
-                    }
-                    guard let nextMonth = calendar.date(byAdding: .month, value: 1, to: targetMonth) else {
+                    guard let targetMonth = calendar.date(byAdding: .month, value: monthOffset, to: calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: 1))!),
+                          let nextMonth = calendar.date(byAdding: .month, value: 1, to: targetMonth) else {
                         continue
                     }
                     dueDate = calendar.date(byAdding: .day, value: -1, to: nextMonth)!
                 } else {
-                    guard let targetDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate)) else {
-                        continue
-                    }
-                    guard let calculatedDueDate = calendar.date(byAdding: .month, value: monthOffset, to: targetDate) else {
+                    guard let targetDate = calendar.date(from: DateComponents(year: currentYear, month: currentMonth, day: card.dueDate)),
+                          let calculatedDueDate = calendar.date(byAdding: .month, value: monthOffset, to: targetDate) else {
                         continue
                     }
                     dueDate = calculatedDueDate
                 }
                 
+                let dueDateStart = calendar.startOfDay(for: dueDate)
+                
                 // Check if this due date has already been paid
-                var isPaid = false
+                let isPaid: Bool
                 if let lastPaidDate = card.lastPaidDate {
-                    let dueDateStart = calendar.startOfDay(for: dueDate)
                     let lastPaidDateStart = calendar.startOfDay(for: lastPaidDate)
-                    
-                    // If this due date is on or before the last paid date, it's been paid
-                    if dueDateStart <= lastPaidDateStart {
-                        isPaid = true
-                        continue
+                    isPaid = dueDateStart <= lastPaidDateStart
+                } else {
+                    isPaid = false
+                }
+                
+                // If this due date hasn't been paid, this is our next unpaid due
+                if !isPaid {
+                    // Calculate the reminder date (due date - reminderDaysAhead)
+                    guard let reminderDate = calendar.date(byAdding: .day, value: -card.reminderDaysAhead, to: dueDate) else {
+                        break
                     }
-                }
-                
-                // Calculate the notification date (dueDate - reminderDaysAhead)
-                guard let notificationDate = calendar.date(byAdding: .day, value: -card.reminderDaysAhead, to: dueDate) else {
-                    continue
-                }
-                
-                let notificationDateStart = calendar.startOfDay(for: notificationDate)
-                let todayStart = calendar.startOfDay(for: today)
-                
-                // If notification date has passed and the due date hasn't been paid, count it
-                if notificationDateStart < todayStart && !isPaid {
-                    count += 1
-                    break // Only count one per card (the earliest unpaid overdue)
-                }
-                
-                // If we're checking future months and notification date hasn't passed yet, we can stop
-                // (we've already checked past months)
-                if monthOffset >= 0 && notificationDateStart >= todayStart {
-                    break
+                    
+                    let reminderDateStart = calendar.startOfDay(for: reminderDate)
+                    
+                    // Check if today is on or after the reminder date
+                    if todayStart >= reminderDateStart {
+                        count += 1
+                    }
+                    
+                    break // We found the next unpaid due for this card, move to next card
                 }
             }
         }
@@ -517,11 +496,17 @@ class CardViewModel {
     }
     
     /// Counts the number of benefits expiring within 5 days
-    /// Only counts active benefits that haven't been used
+    /// Simple logic: For each active unused benefit, calculate expiration date, check if it's within 5 days
     func getBenefitsExpiringWithin5DaysCount() -> Int {
         let today = Date()
         let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: today)
         var count = 0
+        
+        // Calculate the date that is 5 days from now
+        guard let fiveDaysFromNow = calendar.date(byAdding: .day, value: 5, to: todayStart) else {
+            return 0
+        }
         
         for card in cards {
             guard let benefits = card.benefits else { continue }
@@ -532,10 +517,11 @@ class CardViewModel {
                 
                 // Calculate next expiration date based on reminder type
                 if let expirationDate = calculateNextExpirationDate(for: benefit, card: card) {
-                    let daysUntilExpiration = calendar.dateComponents([.day], from: calendar.startOfDay(for: today), to: calendar.startOfDay(for: expirationDate)).day ?? 0
+                    let expirationDateStart = calendar.startOfDay(for: expirationDate)
                     
-                    // Count benefits expiring within 5 days (0 to 5 days inclusive)
-                    if daysUntilExpiration >= 0 && daysUntilExpiration <= 5 {
+                    // Count if expiration date is today or within the next 5 days
+                    // (expirationDate >= today AND expirationDate <= today + 5 days)
+                    if expirationDateStart >= todayStart && expirationDateStart <= fiveDaysFromNow {
                         count += 1
                     }
                 }

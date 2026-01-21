@@ -159,13 +159,13 @@ struct ReminderCardView: View {
     
     private func getBadgeColor(_ days: Int) -> Color {
         if days == 0 { return Color.red.opacity(0.15) }
-        if days <= 3 { return Color.orange.opacity(0.15) }
+        if days <= card.reminderDaysAhead { return Color.orange.opacity(0.15) }
         return Color.blue.opacity(0.15)
     }
     
     private func getTextColor(_ days: Int) -> Color {
         if days == 0 { return Color.red }
-        if days <= 3 { return Color.orange }
+        if days <= card.reminderDaysAhead { return Color.orange }
         return Color.blue
     }
 }

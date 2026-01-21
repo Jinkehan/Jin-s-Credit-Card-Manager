@@ -16,28 +16,36 @@ struct JDueApp: App {
             CardBenefit.self,
         ])
         
-        // Enable iCloud sync with CloudKit
+        // Enable iCloud sync with CloudKit using the private database
+        // .automatic uses the default iCloud container specified in entitlements
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .automatic
+            cloudKitDatabase: .private("iCloud.kehan.jin.JDue")
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            print("✅ Successfully initialized ModelContainer with iCloud sync")
+            return container
         } catch {
-            // Fallback: If CloudKit fails (usually due to schema mismatch or corrupted CloudKit data),
-            // fall back to local-only storage. This preserves all local data but disables CloudKit sync.
-            // Users can restore CloudKit sync by deleting and reinstalling the app (which resets CloudKit),
-            // or by manually resetting their CloudKit container in iCloud settings.
+            print("❌ Failed to initialize ModelContainer with CloudKit: \(error.localizedDescription)")
+            
+            // Fallback: If CloudKit fails, use local-only storage
+            // This can happen if:
+            // - User is not signed into iCloud
+            // - iCloud Drive is disabled
+            // - There's a CloudKit schema mismatch
             do {
                 let fallbackConfiguration = ModelConfiguration(
                     schema: schema,
                     isStoredInMemoryOnly: false,
-                    cloudKitDatabase: .none  // Disable CloudKit to preserve local data
+                    cloudKitDatabase: .none  // Disable CloudKit to use local storage only
                 )
                 
-                return try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+                let container = try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+                print("⚠️ Using local-only storage (CloudKit disabled)")
+                return container
             } catch {
                 fatalError("Could not create ModelContainer even with fallback: \(error)")
             }
