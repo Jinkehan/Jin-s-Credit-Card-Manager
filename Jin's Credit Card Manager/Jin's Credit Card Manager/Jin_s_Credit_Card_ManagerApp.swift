@@ -26,13 +26,8 @@ struct JDueApp: App {
 
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            print("✅ Successfully initialized ModelContainer with iCloud sync")
-            print("📦 Using container identifier: iCloud.kehan.jin.JDue")
             return container
         } catch {
-            print("❌ Failed to initialize ModelContainer with CloudKit: \(error.localizedDescription)")
-            print("❌ Full error: \(error)")
-            
             // Fallback: If CloudKit fails, use local-only storage
             // This can happen if:
             // - User is not signed into iCloud
@@ -46,7 +41,6 @@ struct JDueApp: App {
                 )
                 
                 let container = try ModelContainer(for: schema, configurations: [fallbackConfiguration])
-                print("⚠️ Using local-only storage (CloudKit disabled)")
                 return container
             } catch {
                 fatalError("Could not create ModelContainer even with fallback: \(error)")

@@ -30,46 +30,33 @@ class CloudKitStatusService {
     func checkAccountStatus() async {
         isCheckingStatus = true
         
-        print("🔍 Checking CloudKit account status...")
-        print("📦 Container ID: iCloud.kehan.jin.JDue")
-        
         do {
             let status = try await container.accountStatus()
             accountStatus = status
-            
-            print("✅ CloudKit account status: \(status.rawValue)")
             
             switch status {
             case .available:
                 isAvailable = true
                 statusMessage = "iCloud is enabled and syncing"
-                print("✅ iCloud is available and ready for sync")
             case .noAccount:
                 isAvailable = false
                 statusMessage = "Not signed into iCloud. Sign in to enable sync."
-                print("❌ No iCloud account signed in")
             case .restricted:
                 isAvailable = false
                 statusMessage = "iCloud is restricted on this device"
-                print("❌ iCloud is restricted")
             case .couldNotDetermine:
                 isAvailable = false
                 statusMessage = "Could not determine iCloud status"
-                print("⚠️ Could not determine iCloud status")
             case .temporarilyUnavailable:
                 isAvailable = false
                 statusMessage = "iCloud is temporarily unavailable"
-                print("⚠️ iCloud temporarily unavailable")
             @unknown default:
                 isAvailable = false
                 statusMessage = "Unknown iCloud status"
-                print("❓ Unknown iCloud status")
             }
         } catch {
             isAvailable = false
             statusMessage = "Error checking iCloud: \(error.localizedDescription)"
-            print("❌ Error checking CloudKit status: \(error)")
-            print("❌ Error details: \(error.localizedDescription)")
         }
         
         isCheckingStatus = false

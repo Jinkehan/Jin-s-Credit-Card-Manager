@@ -42,11 +42,18 @@ struct MainTabView: View {
                 // Check CloudKit status first to trigger sync
                 await CloudKitStatusService.shared.checkAccountStatus()
                 
-                // Wait a moment for CloudKit to sync data from iCloud
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-                
-                // Reload data after CloudKit sync
-                viewModel.loadData()
+                // Poll for data multiple times to handle CloudKit sync delay
+                // This is especially important after Clean Build Folder clears the local cache
+                for attempt in 1...5 {
+                    viewModel.loadData()
+                    
+                    if !viewModel.cards.isEmpty {
+                        break
+                    }
+                    
+                    // Wait before next attempt (increasing delay: 1s, 2s, 3s, 4s, 5s)
+                    try? await Task.sleep(nanoseconds: UInt64(attempt) * 1_000_000_000)
+                }
             }
             
             // Automatically fetch card benefits on app launch
