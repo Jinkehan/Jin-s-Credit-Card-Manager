@@ -157,10 +157,20 @@ class BenefitsViewModel {
     
     func markBenefitAsUsed(_ benefit: CardBenefit) {
         guard let context = modelContext else { return }
-        
-        benefit.lastUsedDate = Date()
+        let usedDate = Date()
+        benefit.lastUsedDate = usedDate
+
+        let record = BenefitUsageRecord(
+            benefitId: benefit.id,
+            cardId: benefit.cardId,
+            usedDate: usedDate,
+            amount: benefit.amount,
+            currency: benefit.currency,
+            benefitName: benefit.name
+        )
+        context.insert(record)
         try? context.save()
-        
+
         if let card = card {
             loadBenefits(for: card)
         }

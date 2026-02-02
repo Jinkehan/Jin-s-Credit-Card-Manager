@@ -257,15 +257,14 @@ class CardViewModel {
         let calendar = Calendar.current
         var upcomingBenefits: [(benefit: CardBenefit, card: CreditCard, expirationDate: Date, daysUntilExpiration: Int)] = []
         
-        // Reset benefits that should be reset based on their reset period
         resetBenefitsIfNeeded()
         
         for card in cards {
             guard let benefits = card.benefits else { continue }
             
             for benefit in benefits {
-                // Only show active benefits that haven't been used
-                guard benefit.isActive && benefit.lastUsedDate == nil else { continue }
+                // Only show active benefits that haven't been used in the current period
+                guard benefit.isActive, !hasUsedBenefitInCurrentPeriod(benefit) else { continue }
                 
                 // Calculate next expiration date based on reminder type
                 if let expirationDate = calculateNextExpirationDate(for: benefit, card: card) {
@@ -398,73 +397,63 @@ class CardViewModel {
     
     // MARK: - Benefit Reset Logic
     
-    /// Resets benefits that should be reset based on their reset period
+    /// Ensures benefit availability is correct for the current period.
+    /// We no longer clear lastUsedDate — history is preserved in BenefitUsageRecord.
     private func resetBenefitsIfNeeded() {
-        guard let context = modelContext else { return }
+        // No-op: availability is derived from BenefitUsageRecord in hasUsedBenefitInCurrentPeriod.
+    }
+
+    /// Returns true if this benefit has already been used in its current reset period
+    /// (e.g. this month for monthly, this year for annual). Used to show/hide in upcoming benefits.
+    private func hasUsedBenefitInCurrentPeriod(_ benefit: CardBenefit) -> Bool {
+        guard let context = modelContext else { return benefit.lastUsedDate != nil }
         let today = Date()
         let calendar = Calendar.current
-        var needsSave = false
-        
-        for card in cards {
-            guard let benefits = card.benefits else { continue }
-            
-            for benefit in benefits {
-                guard let lastUsedDate = benefit.lastUsedDate,
-                      let resetPeriod = benefit.resetPeriod else { continue }
-                
-                var shouldReset = false
-                
-                switch resetPeriod {
-                case "monthly":
-                    // Reset if lastUsedDate is from a previous month
-                    let lastUsedMonth = calendar.component(.month, from: lastUsedDate)
-                    let lastUsedYear = calendar.component(.year, from: lastUsedDate)
-                    let currentMonth = calendar.component(.month, from: today)
-                    let currentYear = calendar.component(.year, from: today)
-                    
-                    shouldReset = (lastUsedYear < currentYear) || 
-                                 (lastUsedYear == currentYear && lastUsedMonth < currentMonth)
-                    
-                case "annual":
-                    // Reset if lastUsedDate is from a previous year
-                    let lastUsedYear = calendar.component(.year, from: lastUsedDate)
-                    let currentYear = calendar.component(.year, from: today)
-                    shouldReset = lastUsedYear < currentYear
-                    
-                case "semi_annual":
-                    // Reset if lastUsedDate is from a previous semi-annual period
-                    // Check if it's been more than 6 months
-                    if let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: today) {
-                        shouldReset = lastUsedDate < sixMonthsAgo
-                    }
-                    
-                case "quarterly":
-                    // Reset if lastUsedDate is from a previous quarter
-                    // Check if it's been more than 3 months
-                    if let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: today) {
-                        shouldReset = lastUsedDate < threeMonthsAgo
-                    }
-                    
-                default:
-                    break
-                }
-                
-                if shouldReset {
-                    benefit.lastUsedDate = nil
-                    needsSave = true
-                }
-            }
+        let currentMonth = calendar.component(.month, from: today)
+        let currentYear = calendar.component(.year, from: today)
+
+        let descriptor = FetchDescriptor<BenefitUsageRecord>()
+        let allRecords = (try? context.fetch(descriptor)) ?? []
+        let records = allRecords.filter { $0.benefitId == benefit.id }
+
+        guard let resetPeriod = benefit.resetPeriod else {
+            // No reset period (e.g. one-time): available only if never used
+            return !records.isEmpty
         }
-        
-        if needsSave {
-            try? context.save()
-            loadData()
+
+        switch resetPeriod {
+        case "monthly":
+            return records.contains { record in
+                calendar.component(.month, from: record.usedDate) == currentMonth &&
+                calendar.component(.year, from: record.usedDate) == currentYear
+            }
+        case "annual":
+            return records.contains { calendar.component(.year, from: $0.usedDate) == currentYear }
+        case "semi_annual":
+            guard let sixMonthsAgo = calendar.date(byAdding: .month, value: -6, to: today) else { return false }
+            return records.contains { $0.usedDate >= sixMonthsAgo }
+        case "quarterly":
+            guard let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: today) else { return false }
+            return records.contains { $0.usedDate >= threeMonthsAgo }
+        default:
+            return !records.isEmpty
         }
     }
-    
+
     func markBenefitAsUsed(_ benefit: CardBenefit) {
         guard let context = modelContext else { return }
-        benefit.lastUsedDate = Date()
+        let usedDate = Date()
+        benefit.lastUsedDate = usedDate
+
+        let record = BenefitUsageRecord(
+            benefitId: benefit.id,
+            cardId: benefit.cardId,
+            usedDate: usedDate,
+            amount: benefit.amount,
+            currency: benefit.currency,
+            benefitName: benefit.name
+        )
+        context.insert(record)
         try? context.save()
         loadData()
     }
@@ -561,8 +550,8 @@ class CardViewModel {
             guard let benefits = card.benefits else { continue }
             
             for benefit in benefits {
-                // Only count active benefits that haven't been used
-                guard benefit.isActive && benefit.lastUsedDate == nil else { continue }
+                // Only count active benefits that haven't been used in current period
+                guard benefit.isActive, !hasUsedBenefitInCurrentPeriod(benefit) else { continue }
                 
                 // Calculate next expiration date based on reminder type
                 if let expirationDate = calculateNextExpirationDate(for: benefit, card: card) {
@@ -581,31 +570,53 @@ class CardViewModel {
     }
     
     // MARK: - Benefits Earned Functions
-    
-    /// Gets all used benefits (where lastUsedDate is not nil)
-    func getUsedBenefits() -> [(benefit: CardBenefit, card: CreditCard)] {
-        var usedBenefits: [(benefit: CardBenefit, card: CreditCard)] = []
-        
+
+    private static let didMigrateBenefitsKey = "JDue.didMigrateLastUsedToUsageRecords"
+
+    /// Migrates existing benefits with lastUsedDate into BenefitUsageRecord (one-time, preserves history).
+    private func migrateLastUsedToUsageRecordsIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: Self.didMigrateBenefitsKey),
+              let context = modelContext else { return }
+        let descriptor = FetchDescriptor<BenefitUsageRecord>()
+        let existingRecords = (try? context.fetch(descriptor)) ?? []
+        var existingBenefitIds = Set(existingRecords.map { $0.benefitId })
+        var didInsert = false
+
         for card in cards {
             guard let benefits = card.benefits else { continue }
-            
             for benefit in benefits {
-                if benefit.lastUsedDate != nil {
-                    usedBenefits.append((benefit: benefit, card: card))
-                }
+                guard let lastUsed = benefit.lastUsedDate, !existingBenefitIds.contains(benefit.id) else { continue }
+                let record = BenefitUsageRecord(
+                    benefitId: benefit.id,
+                    cardId: benefit.cardId,
+                    usedDate: lastUsed,
+                    amount: benefit.amount,
+                    currency: benefit.currency,
+                    benefitName: benefit.name
+                )
+                context.insert(record)
+                existingBenefitIds.insert(benefit.id)
+                didInsert = true
             }
         }
-        
-        // Sort by lastUsedDate, most recent first
-        return usedBenefits.sorted { benefit1, benefit2 in
-            let date1 = benefit1.benefit.lastUsedDate ?? Date.distantPast
-            let date2 = benefit2.benefit.lastUsedDate ?? Date.distantPast
-            return date1 > date2
+        if didInsert { try? context.save() }
+        UserDefaults.standard.set(true, forKey: Self.didMigrateBenefitsKey)
+    }
+    
+    /// Gets all usage records (benefits earned history), sorted by usedDate descending.
+    func getUsedBenefits() -> [(record: BenefitUsageRecord, card: CreditCard)] {
+        migrateLastUsedToUsageRecordsIfNeeded()
+        guard let context = modelContext else { return [] }
+        let descriptor = FetchDescriptor<BenefitUsageRecord>(sortBy: [SortDescriptor(\.usedDate, order: .reverse)])
+        let records = (try? context.fetch(descriptor)) ?? []
+        return records.compactMap { record -> (BenefitUsageRecord, CreditCard)? in
+            guard let card = cards.first(where: { $0.id == record.cardId }) else { return nil }
+            return (record, card)
         }
     }
     
     /// Gets used benefits filtered by time period
-    func getUsedBenefits(timeFilter: BenefitsTimeFilter) -> [(benefit: CardBenefit, card: CreditCard)] {
+    func getUsedBenefits(timeFilter: BenefitsTimeFilter) -> [(record: BenefitUsageRecord, card: CreditCard)] {
         let allUsed = getUsedBenefits()
         let calendar = Calendar.current
         let today = Date()
@@ -615,41 +626,30 @@ class CardViewModel {
             return allUsed
         case .currentYear:
             let currentYear = calendar.component(.year, from: today)
-            return allUsed.filter { benefitInfo in
-                guard let lastUsedDate = benefitInfo.benefit.lastUsedDate else { return false }
-                let benefitYear = calendar.component(.year, from: lastUsedDate)
-                return benefitYear == currentYear
-            }
+            return allUsed.filter { calendar.component(.year, from: $0.record.usedDate) == currentYear }
         }
     }
     
     /// Gets used benefits filtered by card
-    func getUsedBenefits(cardId: String?) -> [(benefit: CardBenefit, card: CreditCard)] {
+    func getUsedBenefits(cardId: String?) -> [(record: BenefitUsageRecord, card: CreditCard)] {
         let allUsed = getUsedBenefits()
-        
-        guard let cardId = cardId else {
-            return allUsed
-        }
-        
+        guard let cardId = cardId else { return allUsed }
         return allUsed.filter { $0.card.id == cardId }
     }
     
     /// Gets used benefits with both time and card filters
-    func getUsedBenefits(timeFilter: BenefitsTimeFilter, cardId: String?) -> [(benefit: CardBenefit, card: CreditCard)] {
+    func getUsedBenefits(timeFilter: BenefitsTimeFilter, cardId: String?) -> [(record: BenefitUsageRecord, card: CreditCard)] {
         var filtered = getUsedBenefits(timeFilter: timeFilter)
-        
         if let cardId = cardId {
             filtered = filtered.filter { $0.card.id == cardId }
         }
-        
         return filtered
     }
     
-    /// Calculates total savings from used benefits
-    func calculateTotalSavings(from benefits: [(benefit: CardBenefit, card: CreditCard)]) -> Double {
-        return benefits.reduce(0.0) { total, benefitInfo in
-            let amount = benefitInfo.benefit.amount ?? 0.0
-            return total + amount
+    /// Calculates total savings from used benefit records
+    func calculateTotalSavings(from benefits: [(record: BenefitUsageRecord, card: CreditCard)]) -> Double {
+        return benefits.reduce(0.0) { total, item in
+            total + (item.record.amount ?? 0.0)
         }
     }
     

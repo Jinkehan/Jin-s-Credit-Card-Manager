@@ -433,7 +433,7 @@ struct BenefitsEarnedDetailView: View {
     @State private var timeFilter: BenefitsTimeFilter = .allTime
     @State private var selectedCardId: String? = nil
     
-    private var filteredBenefits: [(benefit: CardBenefit, card: CreditCard)] {
+    private var filteredBenefits: [(record: BenefitUsageRecord, card: CreditCard)] {
         viewModel.getUsedBenefits(timeFilter: timeFilter, cardId: selectedCardId)
     }
     
@@ -554,9 +554,9 @@ struct BenefitsEarnedDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 60)
                     } else {
-                        ForEach(filteredBenefits, id: \.benefit.id) { benefitInfo in
+                        ForEach(filteredBenefits, id: \.record.id) { benefitInfo in
                             UsedBenefitCardView(
-                                benefit: benefitInfo.benefit,
+                                record: benefitInfo.record,
                                 card: benefitInfo.card
                             )
                         }
@@ -574,17 +574,14 @@ struct BenefitsEarnedDetailView: View {
 
 // MARK: - Used Benefit Card View
 struct UsedBenefitCardView: View {
-    let benefit: CardBenefit
+    let record: BenefitUsageRecord
     let card: CreditCard
     
     private var formattedDate: String {
-        guard let lastUsedDate = benefit.lastUsedDate else {
-            return "Unknown"
-        }
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: lastUsedDate)
+        return formatter.string(from: record.usedDate)
     }
     
     var body: some View {
@@ -594,7 +591,7 @@ struct UsedBenefitCardView: View {
             
             // Benefit info
             VStack(alignment: .leading, spacing: 6) {
-                Text(benefit.name)
+                Text(record.benefitName)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.primary)
                     .lineLimit(2)
@@ -618,9 +615,9 @@ struct UsedBenefitCardView: View {
             Spacer(minLength: 8)
             
             // Amount
-            if let amount = benefit.amount, amount > 0 {
+            if let amount = record.amount, amount > 0 {
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(benefit.formattedAmount)
+                    Text(record.formattedAmount)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.green)
                     

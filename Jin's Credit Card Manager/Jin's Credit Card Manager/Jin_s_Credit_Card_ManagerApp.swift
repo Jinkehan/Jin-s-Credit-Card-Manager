@@ -14,6 +14,7 @@ struct JDueApp: App {
         let schema = Schema([
             CreditCard.self,
             CardBenefit.self,
+            BenefitUsageRecord.self,
         ])
         
         // Enable iCloud sync with CloudKit using the private database
